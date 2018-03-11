@@ -1,0 +1,26 @@
+{
+  "name": "@borisovg/web-framework",
+  "version": "0.0.1",
+  "description": "A small, fast, Express-like Node.js web framework.",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/borisovg/node-web-framework.git"
+  },
+  "author": {
+    "name": "George Borisov",
+    "url": "https://github.com/borisovg"
+  },
+  "license": "LGPL-3.0",
+  "bugs": {
+    "url": "https://github.com/borisovg/node-web-framework/issues"
+  },
+  "homepage": "https://github.com/borisovg/node-web-framework#readme",
+  "dependencies": {
+    "http-hash": "^2.0.0",
+    "mime-types": "^2.1.18"
+  }
+}
