@@ -13,6 +13,10 @@ exports.middleware = {
         return require('./lib/body-middleware.js');
     },
 
+    json: function () {
+        return require('./lib/json-middleware.js');
+    },
+
     query: function () {
         return require('./lib/query-middleware.js');
     },
