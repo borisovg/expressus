@@ -9,6 +9,10 @@
 exports.App = require('./lib/App.js');
 
 exports.middleware = {
+    body: function () {
+        return require('./lib/body-middleware.js');
+    },
+
     query: function () {
         return require('./lib/query-middleware.js');
     },
