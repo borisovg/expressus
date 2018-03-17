@@ -7,3 +7,9 @@
  */
 
 exports.App = require('./lib/App.js');
+
+exports.middleware = {
+    query: function () {
+        return require('./lib/query-middleware.js');
+    },
+};

@@ -13,7 +13,9 @@ module.exports = function (port) {
             });
 
             res.on('end', function () {
-                callback(res, Buffer.concat(chunks).toString());
+                if (callback) {
+                    callback(res, Buffer.concat(chunks).toString());
+                }
             });
         });
 
