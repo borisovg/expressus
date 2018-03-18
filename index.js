@@ -20,4 +20,8 @@ exports.middleware = {
     query: function () {
         return require('./lib/query-middleware.js');
     },
+
+    static: function (opts) {
+        return require('./lib/static-middleware.js')(opts);
+    },
 };
