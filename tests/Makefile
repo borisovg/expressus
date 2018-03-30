@@ -15,7 +15,7 @@ clean:
 ## test:   run the tests (default target)
 .PHONY: test
 test: node_modules
-	DEBUG=metalsmith-uglify:info:* ./node_modules/.bin/nyc \
+	./node_modules/.bin/nyc \
 		--all \
 		--cwd ../ \
 		--exclude tests/** \
