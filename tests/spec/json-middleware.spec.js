@@ -28,23 +28,43 @@ describe('lib/json-middleware.js', function () {
         app.use(lib.middleware.json());
     });
 
-    it('creates replaces req.body with parsed JSON', function (done) {
+    it('does not parse when there is no body', function (done) {
         app.post('/test1', function (req, res) {
+            res.end();
+            expect(req.body).to.equal(undefined);
+            done();
+        });
+
+        httpRequest({ method: 'POST', path: '/test1' });
+    });
+
+    it('does not parse without JSON content type', function (done) {
+        app.post('/test2', function (req, res) {
+            res.end();
+            expect(Buffer.isBuffer(req.body)).to.equal(true);
+            done();
+        });
+
+        httpRequest({ method: 'POST', path: '/test2' }, '{"foo":"foofoo"}');
+    });
+
+    it('creates replaces req.body with parsed JSON', function (done) {
+        app.post('/test3', function (req, res) {
             res.end();
             expect(req.body.foo).to.equal('foofoo');
             done();
         });
 
-        httpRequest('POST', '/test1', '{"foo":"foofoo"}');
+        httpRequest({ method: 'POST', path: '/test3', type: 'application/json' }, '{"foo":"foofoo"}');
     });
 
     it('adds res.json() which sends JSON to client', function (done) {
-        app.post('/test2', function (req, res) {
+        app.post('/test4', function (req, res) {
             expect(typeof res.json).to.equal('function');
             res.json({ bar: 'foobar' });
         });
 
-        httpRequest('POST', '/test2', undefined, function (res, data) {
+        httpRequest({ method: 'POST', path: '/test4', type: 'application/json' }, undefined, function (res, data) {
             const json = JSON.parse(data);
             expect(json.bar).to.equal('foobar');
             expect(res.headers['content-type']).to.equal('application/json');
@@ -53,7 +73,7 @@ describe('lib/json-middleware.js', function () {
     });
 
     it('returns HTTP 400 status on parse error', function (done) {
-        httpRequest('POST', '/test3', 'spanner', function (res, data) {
+        httpRequest({ method: 'POST', path: '/test5', type: 'application/json' }, 'spanner', function (res, data) {
             expect(res.statusCode).to.equal(400);
             expect(data.match(/(^\d+)/)[1]).to.equal('400');
             done();
