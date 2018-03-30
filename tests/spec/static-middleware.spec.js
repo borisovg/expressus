@@ -41,7 +41,7 @@ describe('lib/static-middleware.js', function () {
             };
         });
 
-        httpRequest('GET', '/pixel.png');
+        httpRequest({ method: 'GET', path: '/pixel.png' });
     });
 
     it('register middleware with path option', function () {
@@ -50,12 +50,12 @@ describe('lib/static-middleware.js', function () {
 
     it('it serves static files', function (done) {
         fs.readFile('./helpers/public/test.txt', function (err, buffer) {
-            httpRequest('GET', '/test.txt', undefined, function (res, data) {
+            httpRequest({ method: 'GET', path: '/test.txt' }, undefined, function (res, data) {
                 expect(res.headers['content-type']).to.equal('text/plain; charset=utf-8');
                 expect(data).to.equal(buffer.toString());
 
                 fs.readFile('./helpers/public/pixel.png', function (err, buffer) {
-                    httpRequest('GET', '/pixel.png', undefined, function (res, data) {
+                    httpRequest({ method: 'GET', path: '/pixel.png' }, undefined, function (res, data) {
                         expect(res.headers['content-type']).to.equal('image/png');
                         expect(data).to.equal(buffer.toString());
                         done();
@@ -71,7 +71,7 @@ describe('lib/static-middleware.js', function () {
             done();
         });
 
-        httpRequest('POST', '/test1.txt');
+        httpRequest({ method: 'POST', path: '/test1.txt' });
     });
 
     it('ignores routes without extension', function (done) {
@@ -80,7 +80,7 @@ describe('lib/static-middleware.js', function () {
             done();
         });
 
-        httpRequest('GET', '/test2');
+        httpRequest({ method: 'GET', path: '/test2' });
     });
 
     it('ignores routes that include ".." string', function (done) {
@@ -89,7 +89,7 @@ describe('lib/static-middleware.js', function () {
             done();
         });
 
-        httpRequest('GET', '/../test3.txt');
+        httpRequest({ method: 'GET', path: '/../test3.txt' });
     });
 
     it('continues to dynamic router if file not found', function (done) {
@@ -98,14 +98,14 @@ describe('lib/static-middleware.js', function () {
             done();
         });
 
-        httpRequest('GET', '/test4.txt');
+        httpRequest({ method: 'GET', path: '/test4.txt' });
     });
 
     it('returns HTTP 500 status on file access error', function (done) {
         fs.chmod('./helpers/public/pixel.png', '222', function (err) {
             expect(err).to.equal(null);
 
-            httpRequest('GET', '/pixel.png', undefined, function (res, data) {
+            httpRequest({ method: 'GET', path: '/pixel.png' }, undefined, function (res, data) {
                 expect(res.statusCode).to.equal(500);
                 expect(data.match(/(^\d+)/)[1]).to.equal('500');
 

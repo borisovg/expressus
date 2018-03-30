@@ -39,7 +39,7 @@ describe('lib/App.js', function () {
                 res.end('foo');
             });
 
-            httpRequest(m, '/test/foofoo', 'bar', function (res, data) {
+            httpRequest({ method: m, path: '/test/foofoo' }, 'bar', function (res, data) {
                 expect(res.statusCode).to.equal(200);
                 expect(data).to.equal('foo');
                 done();
@@ -66,7 +66,7 @@ describe('lib/App.js', function () {
 
         expect(app._middleware.length).to.equal(2);
 
-        httpRequest('GET', '/test/foofoo', undefined, function (res, data) {
+        httpRequest({ method: 'GET', path: '/test/foofoo' }, undefined, function (res, data) {
             expect(res.statusCode).to.equal(200);
             expect(data).to.equal('foo');
             expect(semaphore).to.equal(0);
@@ -77,7 +77,7 @@ describe('lib/App.js', function () {
     });
 
     it('returns 404 in strange method', function (done) {
-        httpRequest('ACL', '/test/foofoo', undefined, function (res, data) {
+        httpRequest({ method: 'ACL', path: '/test/foofoo' }, undefined, function (res, data) {
             expect(res.statusCode).to.equal(404);
             expect(typeof data).to.equal('string');
             done();
@@ -85,7 +85,7 @@ describe('lib/App.js', function () {
     });
 
     it('returns 404 in unknown route', function (done) {
-        httpRequest('GET', '/spanner', undefined, function (res, data) {
+        httpRequest({ method: 'GET', path: '/spanner' }, undefined, function (res, data) {
             expect(res.statusCode).to.equal(404);
             expect(typeof data).to.equal('string');
             done();

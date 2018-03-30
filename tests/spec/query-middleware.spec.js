@@ -37,7 +37,7 @@ describe('lib/query-middleware.js', function () {
             done();
         });
 
-        httpRequest('GET', path);
+        httpRequest({ method: 'GET', path });
     });
 
     it('trims req.url down to path', function () {

@@ -35,7 +35,7 @@ describe('lib/body-middleware.js', function () {
             done();
         });
 
-        httpRequest('POST', '/test', 'foofoo');
+        httpRequest({ method: 'POST', path: '/test' }, 'foofoo');
     });
 
     it('does not create req.body if request has no body', function (done) {
@@ -45,6 +45,6 @@ describe('lib/body-middleware.js', function () {
             done();
         });
 
-        httpRequest('GET', '/test');
+        httpRequest({ method: 'GET', path: '/test' });
     });
 });

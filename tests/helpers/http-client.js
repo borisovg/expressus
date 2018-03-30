@@ -4,8 +4,8 @@
 var http = require('http');
 
 module.exports = function (port) {
-    return function request (method, path, data, callback) {
-        var req = http.request({ port: port, method: method, path: path }, function (res) {
+    return function request (opts, data, callback) {
+        var req = http.request({ port: port, method: opts.method, path: opts.path }, function (res) {
             var chunks = [];
 
             res.on('data', function (buffer) {
@@ -18,6 +18,10 @@ module.exports = function (port) {
                 }
             });
         });
+
+        if (opts.type) {
+            req.setHeader('Content-Type', opts.type);
+        }
 
         if (data) {
             req.write(data);
