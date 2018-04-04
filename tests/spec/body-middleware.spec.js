@@ -7,6 +7,8 @@
  */
 
 const expect = require('chai').expect;
+const http = require('http');
+
 const client = require('../helpers/http-client.js');
 const lib = require('../../index.js');
 
@@ -14,13 +16,15 @@ describe('lib/body-middleware.js', function () {
     const app = new lib.App();
     const port = 10001;
     const httpRequest = client(port);
+    var server;
 
     before(function (done) {
-        app.listen(port, done);
+        server = http.createServer(app.router);
+        server.listen(port, done);
     });
 
     after(function (done) {
-        app.close(done);
+        server.close(done);
     });
 
     it('register middleware', function () {

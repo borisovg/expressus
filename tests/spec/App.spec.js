@@ -7,6 +7,8 @@
  */
 
 const expect = require('chai').expect;
+const http = require('http');
+
 const client = require('../helpers/http-client.js');
 const lib = require('../../index.js');
 
@@ -14,14 +16,20 @@ describe('lib/App.js', function () {
     const port = 10001;
     const httpRequest = client(port);
     const path = '/test/foofoo/bar/baz';
-    var app;
+    var app, server;
+
+    after(function (done) {
+        server.close(done);
+    });
 
     it('creates HTTP server when called with no options', function () {
         app = new lib.App();
     });
 
-    it('forwards listen() call to server', function (done) {
-        app.listen(port, done);
+    it('exposes request handler as app.router', function (done) {
+        expect(typeof app.router).to.equal('function');
+        server = http.createServer(app.router);
+        server.listen(port, done);
     });
 
     ['delete', 'get', 'post', 'put'].forEach(function (k) {
@@ -92,9 +100,5 @@ describe('lib/App.js', function () {
             expect(typeof data).to.equal('string');
             done();
         });
-    });
-
-    it('forwards close() call to server', function (done) {
-        app.close(done);
     });
 });

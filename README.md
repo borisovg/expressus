@@ -5,10 +5,13 @@ A small, fast, Express-like Node.js web framework.
 ## Usage Example
 
 ```
+const http = require('http');
 const framework = require('@borisovg/web-framework');
-const app = new framework.App();
 
-app.listen(8080);
+const app = new framework.App();
+const server = http.createServer(app.router);
+
+server.listen(8080);
 
 // simple GET route
 
@@ -36,13 +39,13 @@ app.post('/foo', function (req, res) {
 
 ## API
 
+- **`framework.App()`**             - application constructor
 - **`app.get(route, callback)`**    - register GET handler
 - **`app.delete(route, callback)`** - register DELETE handler
 - **`app.post(route, callback)`**   - register POST handler
 - **`app.put(route, callback)`**    - register PUT handler
+- **`app.router(req, res)`**        - router function (use as request callback for HTTP server)
 - **`app.use(middleware)`**         - register middleware function
-- **`app.close()`**                 - see [net.Server.close()](https://nodejs.org/api/net.html#net_server_close_callback)
-- **`app.listen()`**                - see [net.Server.listen()](https://nodejs.org/api/net.html#net_server_listen)
 
 ## Routing
 

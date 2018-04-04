@@ -7,6 +7,7 @@
  */
 
 const chai = require('chai');
+const http = require('http');
 const fs = require('fs');
 
 const client = require('../helpers/http-client.js');
@@ -19,13 +20,15 @@ describe('lib/static-middleware.js', function () {
     const app = new lib.App();
     const port = 10001;
     const httpRequest = client(port);
+    var server;
 
     before(function (done) {
-        app.listen(port, done);
+        server = http.createServer(app.router);
+        server.listen(port, done);
     });
 
     after(function (done) {
-        app.close(done);
+        server.close(done);
     });
 
     it('defaults to "./public" for path', function (done) {
