@@ -2,6 +2,38 @@
 
 A small, fast, Express-like Node.js web framework.
 
+## Usage Example
+
+```
+const framework = require('@borisovg/web-framework');
+const app = new framework.App();
+
+app.listen(8080);
+
+// simple GET route
+
+app.get('/foo', function (req, res) {
+    res.end('OK');
+});
+
+// GET route with params (e.g. /foo/bar/baz)
+
+app.get('/foo/:a/:b', function (req, res) {
+    console.log(req.params);
+    res.end('OK');
+});
+
+// JSON POST route
+
+app.use(framework.middleware.body());
+app.use(framework.middleware.json());
+
+app.post('/foo', function (req, res) {
+    console.log(req.body);
+    res.json({ result: 'OK' });
+});
+```
+
 ## API
 
 - **`app.get(route, callback)`**    - register GET handler
