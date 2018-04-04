@@ -44,6 +44,14 @@ app.post('/foo', function (req, res) {
 - **`app.close()`**                 - see [net.Server.close()](https://nodejs.org/api/net.html#net_server_close_callback)
 - **`app.listen()`**                - see [net.Server.listen()](https://nodejs.org/api/net.html#net_server_listen)
 
+## Routing
+
+- route "/foo" will match request path "/foo"
+- route "/foo/:name" will match request path like "/foo/bar" and set `req.params.name` to "bar"
+- route "/foo/:name/*" will match request path like "/foo/bar/anything/else", will set `req.params.name` to "bar" and set `req.splat` to "anything/else".
+
+Refer to the [http-hash package](https://github.com/Matt-Esch/http-hash) for more information.
+
 ## Middleware
 
 A middleware function has the signature `(req, res, next)`, with `next` being a function that will run the next middleware in the chain.
