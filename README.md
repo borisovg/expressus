@@ -2,11 +2,17 @@
 
 A small, fast, Express-like Node.js web framework.
 
+## Installation
+
+```
+npm install --save @borisov/web-framework
+```
+
 ## Usage Example
 
 ```
-const http = require('http');
 const framework = require('@borisovg/web-framework');
+const http = require('http');
 
 const app = new framework.App();
 const server = http.createServer(app.router);
