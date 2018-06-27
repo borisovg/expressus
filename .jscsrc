@@ -1,0 +1,13 @@
+{
+    "preset"                                    : "airbnb",
+    "disallowMultipleSpaces"                    : true,
+    "disallowMultipleVarDecl"                   : { "allExcept": ["undefined"] },
+    "disallowSpacesInFunctionDeclaration"       : false,
+    "disallowSpacesInNamedFunctionExpression"   : false,
+    "disallowTabs"                              : true,
+    "maximumLineLength"                         : false,
+    "requireCamelCaseOrUpperCaseIdentifiers"    : false,
+    "requireSpacesInFunction"                   : { "beforeOpeningRoundBrace": true, "beforeOpeningCurlyBrace": true },
+    "validateIndentation"                       : 4,
+    "validateLineBreaks"                        : "LF"
+}
