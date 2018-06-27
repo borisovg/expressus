@@ -50,6 +50,7 @@ app.post('/foo', function (req, res) {
 - **`app.delete(route, callback)`** - register DELETE handler
 - **`app.post(route, callback)`**   - register POST handler
 - **`app.put(route, callback)`**    - register PUT handler
+- **`app.remove_all_handlers()`**   - remove all handlers
 - **`app.router(req, res)`**        - router function (use as request callback for HTTP server)
 - **`app.use(middleware)`**         - register middleware function
 

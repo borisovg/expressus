@@ -101,4 +101,13 @@ describe('lib/App.js', function () {
             done();
         });
     });
+
+    it('removes all handlers', function (done) {
+        app.remove_all_handlers();
+
+        httpRequest({ method: 'GET', path }, undefined, function (res) {
+            expect(res.statusCode).to.equal(404);
+            done();
+        });
+    });
 });
