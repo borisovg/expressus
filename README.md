@@ -48,6 +48,7 @@ app.post('/foo', function (req, res) {
 - **`framework.App()`**             - application constructor
 - **`app.get(route, callback)`**    - register GET handler
 - **`app.delete(route, callback)`** - register DELETE handler
+- **`app.patch(route, callback)`**  - register PATCH handler
 - **`app.post(route, callback)`**   - register POST handler
 - **`app.put(route, callback)`**    - register PUT handler
 - **`app.remove_all_handlers()`**   - remove all handlers
