@@ -1,3 +1,6 @@
+[![Build Status](https://img.shields.io/travis/borisovg/node-web-framework/master.svg?style=flat-square)](https://travis-ci.org/borisovg/node-web-framework/)
+[![Coverage Status](https://img.shields.io/codecov/c/github/borisovg/node-web-framework/master.svg?style=flat-square)](https://codecov.io/gh/borisovg/node-web-framework/)
+
 # node-web-framework
 
 A small, fast, Express-like Node.js web framework.
