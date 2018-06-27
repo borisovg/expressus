@@ -7,6 +7,10 @@ clean:
 	rm -f npm-debug.log
 	cd tests && make clean
 
+.PHONY: coverage
+coverage:
+	cd tests && make coverage
+
 ## test:  run tests
 .PHONY: test
 test: node_modules
