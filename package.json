@@ -21,7 +21,7 @@
   "homepage": "https://github.com/borisovg/node-web-framework#readme",
   "dependencies": {
     "http-hash": "^2.0.0",
-    "mime-types": "^2.1.18"
+    "mime-types": "^2.1.20"
   },
   "engines": {
     "node": ">=4"
