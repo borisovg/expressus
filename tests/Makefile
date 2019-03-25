@@ -9,14 +9,16 @@ clean:
 		.nyc_output \
 		../node_modules/.cache/nyc \
 		coverage \
-		node_modules
+		node_modules \
+		package-lock.json
 	rm -f npm-debug.log
 
 .PHONY: coverage
 coverage:
 	./node_modules/.bin/nyc report \
+		--cache-dir=./.nyc_cache \
 		--cwd ../ \
-		--temp-directory ./tests/.nyc_output \
+		--temp-directory=./tests/.nyc_output \
 		--reporter=text-lcov \
 		> $(LCOV)
 	./node_modules/.bin/codecov \
@@ -27,13 +29,16 @@ coverage:
 test: node_modules
 	./node_modules/.bin/nyc \
 		--all \
+		--cache-dir=./.nyc_cache \
 		--cwd ../ \
 		--exclude tests/** \
 		--report-dir=./tests/coverage \
+		--reporter=none \
+		--temp-directory=./tests/.nyc_output \
+		node_modules/.bin/mocha -b spec/*
+	./node_modules/.bin/nyc report \
 		--reporter=html \
-		--reporter=text \
-		--temp-directory ./tests/.nyc_output \
-		node_modules/.bin/mocha spec/*
+		--reporter=text
 
 .PHONY: help
 help:
