@@ -13,6 +13,10 @@ exports.middleware = {
         return require('./lib/body-middleware.js');
     },
 
+    form: function () {
+        return require('./lib/form-middleware.js');
+    },
+
     json: function () {
         return require('./lib/json-middleware.js');
     },

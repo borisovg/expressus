@@ -81,9 +81,18 @@ This middleware will load the request body and attach it to `req.body` as a buff
 app.use(framework.middleware.body());
 ```
 
+### Request Body Form Parser
+
+This middleware will parse `req.body` form data and replace `req.body` with the result.
+
+```
+app.use(framework.middleware.body());
+app.use(framework.middleware.form());
+```
+
 ### Request Body JSON Parser
 
-This middleware will parse `req.body` JSON string and replace `req.body` with the result.
+This middleware will parse `req.body` JSON data and replace `req.body` with the result.
 It will also add a `res.json(data)` convenience method.
 
 ```
