@@ -117,4 +117,19 @@ describe('lib/static-middleware.js', function () {
             });
         });
     });
+
+    it('returns HTTP 500 error on file stat error', function (done) {
+        util.overwriteMethod(fs, 'stat', function (self) {
+            return function (path, callback) {
+                fs.stat = self;
+                callback(new Error('spanner'));
+            };
+        });
+
+        httpRequest({ method: 'GET', path: '/pixel.png' }, undefined, function (res, data) {
+            expect(res.statusCode).to.equal(500);
+            expect(data.match(/(^\d+)/)[1]).to.equal('500');
+            done();
+        });
+    });
 });
