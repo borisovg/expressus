@@ -20,8 +20,8 @@
   },
   "homepage": "https://github.com/borisovg/node-web-framework#readme",
   "dependencies": {
-    "http-hash": "^2.0.0",
-    "mime-types": "^2.1.20"
+    "http-hash": "^2.0.1",
+    "mime-types": "^2.1.22"
   },
   "engines": {
     "node": ">=4"
