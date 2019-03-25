@@ -1,8 +1,6 @@
-/*jshint mocha:true*/
 'use strict';
 
 /**
- * Tests for lib/json-middleware.js
  * @author George Borisov <git@gir.me.uk>
  */
 
@@ -16,7 +14,7 @@ describe('lib/json-middleware.js', function () {
     const app = new lib.App();
     const port = 10001;
     const httpRequest = client(port);
-    var server;
+    let server;
 
     before(function (done) {
         app.use(lib.middleware.body());

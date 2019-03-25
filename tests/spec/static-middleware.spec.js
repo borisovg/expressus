@@ -1,8 +1,6 @@
-/*jshint mocha:true*/
 'use strict';
 
 /**
- * Tests for lib/static-middleware.js
  * @author George Borisov <git@gir.me.uk>
  */
 
@@ -20,7 +18,7 @@ describe('lib/static-middleware.js', function () {
     const app = new lib.App();
     const port = 10001;
     const httpRequest = client(port);
-    var server;
+    let server;
 
     before(function (done) {
         server = http.createServer(app.router);

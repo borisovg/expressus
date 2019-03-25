@@ -1,8 +1,6 @@
-/*jshint mocha:true*/
 'use strict';
 
 /**
- * Tests for lib/query-middleware.js
  * @author George Borisov <git@gir.me.uk>
  */
 
@@ -17,7 +15,7 @@ describe('lib/query-middleware.js', function () {
     const path = '/test?foo=foofoo';
     const port = 10001;
     const httpRequest = client(port);
-    var r, server;
+    let r, server;
 
     before(function (done) {
         server = http.createServer(app.router);

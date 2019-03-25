@@ -1,0 +1,16 @@
+{
+    "env": {
+        "mocha": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "rules": {
+        "handle-callback-err": "off",
+        "prefer-object-spread": "error",
+        "prefer-spread": "error",
+        "no-empty-function": "off",
+        "no-shadow": "off",
+        "no-var": "error"
+    }
+}

@@ -1,8 +1,6 @@
-/*jshint mocha:true*/
 'use strict';
 
 /**
- * Tests for lib/App.js
  * @author George Borisov <git@gir.me.uk>
  */
 
@@ -16,7 +14,7 @@ describe('lib/App.js', function () {
     const port = 10001;
     const httpRequest = client(port);
     const path = '/test/foofoo/bar/baz';
-    var app, server;
+    let app, server;
 
     after(function (done) {
         server.close(done);
@@ -59,7 +57,7 @@ describe('lib/App.js', function () {
     });
 
     it('registers middleware and applies it to request', function (done) {
-        var semaphore = 2;
+        let semaphore = 2;
 
         function mw (req, res, next) {
             expect(req.url).to.equal(path);
