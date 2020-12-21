@@ -48,4 +48,14 @@ describe('lib/query-middleware.js', function () {
     it('adds req.originalUrl property with original request URL', function () {
         expect(r.originalUrl).to.equal(path);
     });
+
+    it('handles edge case where URL is undefined on the request', (done) => {
+        const req = {};
+
+        lib.middleware.query()(req, null, () => {
+            expect(req.query).to.eql({});
+            expect(req.url).to.equal(undefined);
+            done();
+        });
+    });
 });

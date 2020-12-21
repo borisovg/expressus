@@ -132,4 +132,8 @@ describe('lib/static-middleware.js', function () {
             done();
         });
     });
+
+    it('handles edge case where URL is undefined on the request', (done) => {
+        lib.middleware.static()({}, null, done);
+    });
 });

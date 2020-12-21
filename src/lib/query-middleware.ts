@@ -21,7 +21,7 @@ interface ClientRequestWithQuery extends IncomingMessage {
 
 function query_middleware (req: IncomingMessage, _res: ServerResponse, next: () => void) {
     const req2 = (req as ClientRequestWithQuery);
-    const u = parse((req.url || '/'), true);
+    const u = parse((req.url || ''), true);
 
     req2.originalUrl = req.url;
     req2.query = u.query;

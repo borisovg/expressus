@@ -55,8 +55,8 @@ class App {
         };
 
         const route_request = (req: ClientRequest, res: ServerResponse) => {
-            const method = req.method || '';
-            const url = req.url || '';
+            const method = req.method as string;
+            const url = req.url as string;
 
             if (this._routes[method]) {
                 const r = this._routes[method].get(url);
