@@ -12,16 +12,18 @@ interface ClientRequest extends IncomingMessage {
     body: Buffer;
 }
 
-function body_middleware (req: ClientRequest, _res: ServerResponse, next: () => void) {
+function body_middleware (req: IncomingMessage, _res: ServerResponse, next: () => void) {
     const chunks: Buffer[] = [];
 
     req.on('data', function (buffer) {
         chunks.push(buffer);
     });
 
+    const req2 = req as ClientRequest;
+
     req.on('end', function () {
         if (chunks.length) {
-            req.body = Buffer.concat(chunks);
+            req2.body = Buffer.concat(chunks);
         }
 
         next();
