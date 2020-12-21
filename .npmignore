@@ -1,6 +1,6 @@
-.js*
 .travis.yml
 benchmark
 local
 Makefile
+src
 tests

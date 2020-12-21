@@ -9,7 +9,7 @@ const http = require('http');
 const fs = require('fs');
 
 const client = require('../helpers/http-client.js');
-const lib = require('../../index.js');
+const lib = require('../..');
 
 const expect = chai.expect;
 const util = chai.util;
@@ -131,5 +131,9 @@ describe('lib/static-middleware.js', function () {
             expect(data.match(/(^\d+)/)[1]).to.equal('500');
             done();
         });
+    });
+
+    it('handles edge case where URL is undefined on the request', (done) => {
+        lib.middleware.static()({}, null, done);
     });
 });

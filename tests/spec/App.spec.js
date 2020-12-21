@@ -8,7 +8,7 @@ const expect = require('chai').expect;
 const http = require('http');
 
 const client = require('../helpers/http-client.js');
-const lib = require('../../index.js');
+const lib = require('../..');
 
 describe('lib/App.js', function () {
     const port = 10001;

@@ -8,7 +8,7 @@ const expect = require('chai').expect;
 const http = require('http');
 
 const client = require('../helpers/http-client.js');
-const lib = require('../../index.js');
+const lib = require('../..');
 
 describe('lib/query-middleware.js', function () {
     const app = new lib.App();
@@ -47,5 +47,15 @@ describe('lib/query-middleware.js', function () {
 
     it('adds req.originalUrl property with original request URL', function () {
         expect(r.originalUrl).to.equal(path);
+    });
+
+    it('handles edge case where URL is undefined on the request', (done) => {
+        const req = {};
+
+        lib.middleware.query()(req, null, () => {
+            expect(req.query).to.eql({});
+            expect(req.url).to.equal(undefined);
+            done();
+        });
     });
 });

@@ -1,5 +1,4 @@
 'use strict';
-
 /**
  * Middleware to load request body, which then is attached to `req.body` as a buffer.
  * @author George Borisov <git@gir.me.uk>
@@ -7,8 +6,14 @@
  * @license LGPL-3.0
  */
 
-module.exports = function body_middleware (req, res, next) {
-    const chunks = [];
+import { IncomingMessage, ServerResponse } from 'http';
+
+interface ClientRequest extends IncomingMessage {
+    body: Buffer;
+}
+
+function body_middleware (req: ClientRequest, _res: ServerResponse, next: () => void) {
+    const chunks: Buffer[] = [];
 
     req.on('data', function (buffer) {
         chunks.push(buffer);
@@ -22,3 +27,5 @@ module.exports = function body_middleware (req, res, next) {
         next();
     });
 };
+
+export { body_middleware };
