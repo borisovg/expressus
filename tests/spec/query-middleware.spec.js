@@ -8,7 +8,7 @@ const expect = require('chai').expect;
 const http = require('http');
 
 const client = require('../helpers/http-client.js');
-const lib = require('../../index.js');
+const lib = require('../..');
 
 describe('lib/query-middleware.js', function () {
     const app = new lib.App();

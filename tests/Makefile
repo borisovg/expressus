@@ -1,4 +1,4 @@
-all: test
+all: node_modules test
 
 LCOV = coverage/coverage.lcov
 
@@ -26,17 +26,21 @@ coverage:
 
 ## test:   run the tests (default target)
 .PHONY: test
-test: node_modules
+test:
 	./node_modules/.bin/nyc \
 		--all \
 		--cache-dir=./.nyc_cache \
 		--cwd ../ \
+		--exclude local/** \
 		--exclude tests/** \
 		--report-dir=./tests/coverage \
 		--reporter=none \
-		--temp-directory=./tests/.nyc_output \
-		node_modules/.bin/mocha -b spec/*
+		--temp-dir=./tests/.nyc_output \
+		node_modules/.bin/mocha -b --recursive spec
 	./node_modules/.bin/nyc report \
+		--cwd ../ \
+		--report-dir=./tests/coverage \
+        --temp-dir=./tests/.nyc_output \
 		--reporter=html \
 		--reporter=text
 

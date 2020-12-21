@@ -1,5 +1,10 @@
 all: help
 
+## build:  build TypeScript source
+.PHONY: build
+build: node_modules
+	./node_modules/.bin/tsc
+
 ## clean: delete NPM packages and generated files
 .PHONY: clean
 clean:
@@ -13,7 +18,7 @@ coverage:
 
 ## test:  run tests
 .PHONY: test
-test: node_modules
+test: node_modules build
 	cd tests && make
 
 .PHONY: help

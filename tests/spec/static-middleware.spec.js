@@ -9,7 +9,7 @@ const http = require('http');
 const fs = require('fs');
 
 const client = require('../helpers/http-client.js');
-const lib = require('../../index.js');
+const lib = require('../..');
 
 const expect = chai.expect;
 const util = chai.util;

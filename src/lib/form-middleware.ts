@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Middleware will parse `req.body` as form data, replacing it with the result.
  * It also binds a `res.json()` convenience method to send JSON response to the client.
@@ -8,26 +6,38 @@
  * @license LGPL-3.0
  */
 
-const http = require('http');
+import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
+
+interface ClientRequestWithBody extends IncomingMessage {
+    body?: Buffer;
+}
+
+interface ClientRequest extends IncomingMessage {
+    body?: Record<string, string>;
+}
+
 const formType = 'application/x-www-form-urlencoded';
 
-module.exports = function form_middleware (req, res, next) {
+function form_middleware (req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
     if (req.body && req.headers['content-type'] === formType) {
         const list = req.body.toString().split('&');
+        const req2 = (req as ClientRequest);
 
-        req.body = {};
+        req2.body = {};
 
         for (let i = 0; i < list.length; i += 1) {
             const a = list[i].split('=');
 
             if (a.length !== 2) {
                 res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
-                return res.end(`400 ${http.STATUS_CODES[400]}`);
+                return res.end(`400 ${STATUS_CODES[400]}`);
             }
 
-            req.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+            req2.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
         }
     }
 
     next();
 };
+
+export { form_middleware };
