@@ -4,7 +4,7 @@
  * @license LGPL-3.0
  */
 
-import { App } from './lib/App';
+import { App, Request, Response } from './lib/App';
 import { body_middleware } from './lib/body-middleware';
 import { form_middleware } from './lib/form-middleware';
 import { json_middleware } from './lib/json-middleware';
@@ -22,4 +22,4 @@ const middleware = {
     },
 };
 
-export { App, middleware };
+export { App, middleware, Request, Response };
