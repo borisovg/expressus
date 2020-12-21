@@ -8,7 +8,7 @@ build: node_modules
 ## clean: delete NPM packages and generated files
 .PHONY: clean
 clean:
-	rm -rf node_modules
+	rm -rf dist node_modules
 	rm -f npm-debug.log
 	cd tests && make clean
 

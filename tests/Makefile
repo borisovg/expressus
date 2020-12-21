@@ -40,7 +40,7 @@ test:
 	./node_modules/.bin/nyc report \
 		--cwd ../ \
 		--report-dir=./tests/coverage \
-        --temp-dir=./tests/.nyc_output \
+		--temp-dir=./tests/.nyc_output \
 		--reporter=html \
 		--reporter=text
 
