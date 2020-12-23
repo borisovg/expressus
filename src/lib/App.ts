@@ -18,7 +18,7 @@ type Response<T> = T & ServerResponse;
 type MiddlewareCallbackFunction = () => void;
 type MiddlewareFunction<T1, T2> = (req: Request<T1>, Response: T2, next: MiddlewareCallbackFunction) => void;
 type HandlerFunction<T1, T2> = (req: Request<T1>, res: T2) => void;
-type RequestParams = Record<string, any>;
+type RequestParams = Record<string, string>;
 type RequestSplat = string | null;
 type RouteHandlerFunction<T1, T2> = (req: Request<T1>, res: T2, params: RequestParams, splat: RequestSplat) => void;
 
