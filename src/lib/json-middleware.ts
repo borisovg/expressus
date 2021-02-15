@@ -22,9 +22,10 @@ interface JSONServerResponse extends ServerResponse {
 }
 
 const jsonType = 'application/json';
+const jsonTypeRe = new RegExp(jsonType + '(;\s?charset=.+)?$');
 
 function json_middleware (req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
-    if (req.body && req.headers['content-type'] === jsonType) {
+    if (req.body && jsonTypeRe.exec(req.headers['content-type'] || '')) {
         const req2 = (req as JSONClientRequest);
 
         try {

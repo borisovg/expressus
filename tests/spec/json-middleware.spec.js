@@ -51,13 +51,23 @@ describe('lib/json-middleware.js', function () {
     });
 
     it('creates replaces req.body with parsed JSON', function (done) {
-        app.post('/test3', function (req, res) {
+        app.post('/test3a', function (req, res) {
             res.end();
             expect(req.body.foo).to.equal('foofoo');
             done();
         });
 
-        httpRequest({ method: 'POST', path: '/test3', type: 'application/json' }, '{"foo":"foofoo"}');
+        httpRequest({ method: 'POST', path: '/test3a', type: 'application/json' }, '{"foo":"foofoo"}');
+    });
+
+    it('creates replaces req.body with parsed JSON when "content-type" includes charset', function (done) {
+        app.post('/test3b', function (req, res) {
+            res.end();
+            expect(req.body.foo).to.equal('foofoo');
+            done();
+        });
+
+        httpRequest({ method: 'POST', path: '/test3b', type: 'application/json;charset=utf-8' }, '{"foo":"foofoo"}');
     });
 
     it('adds res.json() which sends JSON to client', function (done) {
