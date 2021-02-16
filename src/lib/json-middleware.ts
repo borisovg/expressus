@@ -9,16 +9,16 @@
 
 import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
 
-interface ClientRequestWithBody extends IncomingMessage {
+type ClientRequestWithBody = IncomingMessage & {
     body?: Buffer;
 }
 
-interface JSONClientRequest extends ClientRequestWithBody {
-    body: any,
+type JSONClientRequest = ClientRequestWithBody & {
+    body: unknown;
 }
 
 interface JSONServerResponse extends ServerResponse {
-    json: (data: any) => void;
+    json: (data: unknown) => void;
 }
 
 const jsonType = 'application/json';
@@ -29,7 +29,7 @@ function json_middleware (req: ClientRequestWithBody, res: ServerResponse, next:
         const req2 = (req as JSONClientRequest);
 
         try {
-            req2.body = JSON.parse((req.body as any ));
+            req2.body = JSON.parse(req.body.toString());
 
         } catch (e) {
             res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });

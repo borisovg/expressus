@@ -16,11 +16,11 @@ type Request<T> = T & IncomingMessage & {
 type Response<T> = T & ServerResponse;
 
 type MiddlewareCallbackFunction = () => void;
-type MiddlewareFunction<T1, T2> = (req: Request<T1>, Response: T2, next: MiddlewareCallbackFunction) => void;
-type HandlerFunction<T1, T2> = (req: Request<T1>, res: T2) => void;
+type MiddlewareFunction<T1, T2> = (req: Request<T1>, Response: T2, next: MiddlewareCallbackFunction) => Promise<void> | void;
+type HandlerFunction<T1, T2> = (req: Request<T1>, res: T2) => Promise<void> | void;
 type RequestParams = Record<string, string>;
 type RequestSplat = string | null;
-type RouteHandlerFunction<T1, T2> = (req: Request<T1>, res: T2, params: RequestParams, splat: RequestSplat) => void;
+type RouteHandlerFunction<T1, T2> = (req: Request<T1>, res: T2, params: RequestParams, splat: RequestSplat) => Promise<void> | void;
 
 function return_404 (res: ServerResponse) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -31,7 +31,7 @@ function make_handler<T1, T2> (callback: HandlerFunction<T1, T2>): RouteHandlerF
     return function handler (req: Request<T1>, res: T2, params: RequestParams, splat: RequestSplat) {
         req.params = params;
         req.splat = splat;
-        callback(req, res);
+        return callback(req, res);
     };
 }
 
