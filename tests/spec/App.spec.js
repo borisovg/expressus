@@ -30,7 +30,7 @@ describe('lib/App.js', function () {
         server.listen(port, done);
     });
 
-    ['delete', 'get', 'patch', 'post', 'put'].forEach(function (k) {
+    ['delete', 'get', 'options', 'patch', 'post', 'put'].forEach(function (k) {
         const m = k.toUpperCase();
 
         it(`registers ${m} handler`, function (done) {

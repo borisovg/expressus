@@ -52,6 +52,7 @@ class App {
         this._routes = {
             DELETE: httpHash(),
             GET: httpHash(),
+            OPTIONS: httpHash(),
             PATCH: httpHash(),
             POST: httpHash(),
             PUT: httpHash(),
@@ -104,6 +105,10 @@ class App {
 
     get<T1, T2> (path: string, handler: HandlerFunction<T1, T2>) {
         this._routes.GET.set(path, make_handler(handler));
+    }
+
+    options<T1, T2>(path: string, handler: HandlerFunction<T1, T2>) {
+        this._routes.OPTIONS.set(path, make_handler(handler));
     }
 
     patch<T1, T2> (path: string, handler: HandlerFunction<T1, T2>) {
