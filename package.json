@@ -1,6 +1,6 @@
 {
   "name": "@borisovg/web-framework",
-  "version": "1.3.5",
+  "version": "1.4.0",
   "description": "A small, fast, Express-like Node.js web framework.",
   "scripts": {
     "test": "make test"
