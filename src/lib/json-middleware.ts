@@ -7,26 +7,24 @@
  * @license LGPL-3.0
  */
 
-import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
+import { STATUS_CODES } from 'http';
+import type { Request, Response } from './App';
+import type { RequestWithBody } from './body-middleware';
 
-type ClientRequestWithBody = IncomingMessage & {
-    body?: Buffer;
-};
-
-type JSONClientRequest = ClientRequestWithBody & {
+export type RequestWithJson = Request & {
     body: unknown;
 };
 
-interface JSONServerResponse extends ServerResponse {
+export type ResponseWithJson = Response & {
     json: (data: unknown) => void;
-}
+};
 
 const jsonType = 'application/json';
 const jsonTypeRe = new RegExp(jsonType + '(;s?charset=.+)?$');
 
-function json_middleware(req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
+export function json_middleware(req: RequestWithBody, res: ResponseWithJson, next: () => void) {
     if (req.body && jsonTypeRe.exec(req.headers['content-type'] || '')) {
-        const req2 = req as JSONClientRequest;
+        const req2 = req as RequestWithJson;
 
         try {
             req2.body = JSON.parse(req.body.toString());
@@ -36,14 +34,10 @@ function json_middleware(req: ClientRequestWithBody, res: ServerResponse, next: 
         }
     }
 
-    const res2 = res as JSONServerResponse;
-
-    res2.json = (data) => {
+    res.json = (data) => {
         res.setHeader('Content-Type', jsonType);
         res.end(JSON.stringify(data));
     };
 
     next();
 }
-
-export { json_middleware };

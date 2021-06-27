@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Middleware to serve static files.
  * @author George Borisov <git@gir.me.uk>
@@ -7,10 +5,11 @@
  * @license LGPL-3.0
  */
 
-import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
+import { STATUS_CODES } from 'http';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
 import * as path from 'path';
+import type { Request, Response } from './App';
 
 const re1 = new RegExp(/\.[A-Za-z0-9]+$/);
 const re2 = new RegExp(/\.\./);
@@ -23,7 +22,7 @@ function make_static_middleware(opts: StaticMiddlewareOptions) {
     opts = opts || {};
     opts.path = opts.path || './public';
 
-    function ok(err: NodeJS.ErrnoException | null, res: ServerResponse, next: () => void) {
+    function ok(err: NodeJS.ErrnoException | null, res: Response, next: () => void) {
         if (!err) {
             return true;
         } else if (err.code === 'ENOENT') {
@@ -36,7 +35,7 @@ function make_static_middleware(opts: StaticMiddlewareOptions) {
         return false;
     }
 
-    return function static_middleware(req: IncomingMessage, res: ServerResponse, next: () => void) {
+    return function static_middleware(req: Request, res: Response, next: () => void) {
         const url = req.url || '/';
 
         if (req.method === 'GET' && url.match(re1) && !url.match(re2)) {

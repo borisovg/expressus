@@ -4,14 +4,21 @@
  * @license LGPL-3.0
  */
 
-import { App, Request, Response } from './lib/App';
 import { body_middleware } from './lib/body-middleware';
 import { form_middleware } from './lib/form-middleware';
 import { json_middleware } from './lib/json-middleware';
 import { query_middleware } from './lib/query-middleware';
-import { make_static_middleware, StaticMiddlewareOptions } from './lib/static-middleware';
+import { make_static_middleware } from './lib/static-middleware';
+import type { StaticMiddlewareOptions } from './lib/static-middleware';
 
-const middleware = {
+export { App } from './lib/App';
+export type { Request, Response } from './lib/App';
+export type { RequestWithBody } from './lib/body-middleware';
+export type { RequestWithForm } from './lib/form-middleware';
+export type { RequestWithJson, ResponseWithJson } from './lib/json-middleware';
+export type { RequestWithQuery } from './lib/query-middleware';
+
+export const middleware = {
     body: () => body_middleware,
     form: () => form_middleware,
     json: () => json_middleware,
@@ -21,5 +28,3 @@ const middleware = {
         return make_static_middleware(opts);
     },
 };
-
-export { App, middleware, Request, Response };

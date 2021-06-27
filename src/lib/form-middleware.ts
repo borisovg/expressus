@@ -6,22 +6,20 @@
  * @license LGPL-3.0
  */
 
-import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
+import { STATUS_CODES } from 'http';
+import type { Request, Response } from './App';
+import type { RequestWithBody } from './body-middleware';
 
-interface ClientRequestWithBody extends IncomingMessage {
-    body?: Buffer;
-}
-
-interface ClientRequest extends IncomingMessage {
-    body?: Record<string, string>;
-}
+export type RequestWithForm = Request & {
+    body: Record<string, string>;
+};
 
 const formType = 'application/x-www-form-urlencoded';
 
-function form_middleware(req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
+function form_middleware(req: RequestWithBody, res: Response, next: () => void) {
     if (req.body && req.headers['content-type'] === formType) {
         const list = req.body.toString().split('&');
-        const req2 = req as ClientRequest;
+        const req2 = req as unknown as RequestWithForm;
 
         req2.body = {};
 
