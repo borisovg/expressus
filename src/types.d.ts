@@ -1,2 +1,2 @@
-declare module "http-hash";
-declare module "mime-types";
+declare module 'http-hash';
+declare module 'mime-types';

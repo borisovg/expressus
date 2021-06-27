@@ -12,7 +12,7 @@ interface ClientRequest extends IncomingMessage {
     body: Buffer;
 }
 
-function body_middleware (req: IncomingMessage, _res: ServerResponse, next: () => void) {
+function body_middleware(req: IncomingMessage, _res: ServerResponse, next: () => void) {
     const chunks: Buffer[] = [];
 
     req.on('data', function (buffer) {
@@ -28,6 +28,6 @@ function body_middleware (req: IncomingMessage, _res: ServerResponse, next: () =
 
         next();
     });
-};
+}
 
 export { body_middleware };

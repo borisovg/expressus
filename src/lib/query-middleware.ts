@@ -9,25 +9,23 @@
  * @license LGPL-3.0
  */
 
-import { IncomingMessage, ServerResponse } from 'http'
+import { IncomingMessage, ServerResponse } from 'http';
 import { ParsedUrlQuery } from 'querystring';
 import { parse } from 'url';
 
 interface ClientRequestWithQuery extends IncomingMessage {
-    originalUrl?: string,
-    query: ParsedUrlQuery
+    originalUrl?: string;
+    query: ParsedUrlQuery;
     url?: string;
 }
 
-function query_middleware (req: IncomingMessage, _res: ServerResponse, next: () => void) {
-    const req2 = (req as ClientRequestWithQuery);
-    const u = parse((req.url || ''), true);
+function query_middleware(req: IncomingMessage, _res: ServerResponse, next: () => void) {
+    const req2 = req as ClientRequestWithQuery;
+    const u = parse(req.url || '', true);
 
     req2.originalUrl = req.url;
     req2.query = u.query;
-    req2.url = u.pathname || undefined,
-
-    next();
-};
+    (req2.url = u.pathname || undefined), next();
+}
 
 export { query_middleware };

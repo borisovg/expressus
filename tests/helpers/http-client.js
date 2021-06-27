@@ -4,7 +4,7 @@
 var http = require('http');
 
 module.exports = function (port) {
-    return function request (opts, data, callback) {
+    return function request(opts, data, callback) {
         var req = http.request({ port: port, method: opts.method, path: opts.path }, function (res) {
             var chunks = [];
 

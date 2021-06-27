@@ -11,40 +11,39 @@ import { IncomingMessage, ServerResponse, STATUS_CODES } from 'http';
 
 type ClientRequestWithBody = IncomingMessage & {
     body?: Buffer;
-}
+};
 
 type JSONClientRequest = ClientRequestWithBody & {
     body: unknown;
-}
+};
 
 interface JSONServerResponse extends ServerResponse {
     json: (data: unknown) => void;
 }
 
 const jsonType = 'application/json';
-const jsonTypeRe = new RegExp(jsonType + '(;\s?charset=.+)?$');
+const jsonTypeRe = new RegExp(jsonType + '(;s?charset=.+)?$');
 
-function json_middleware (req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
+function json_middleware(req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
     if (req.body && jsonTypeRe.exec(req.headers['content-type'] || '')) {
-        const req2 = (req as JSONClientRequest);
+        const req2 = req as JSONClientRequest;
 
         try {
             req2.body = JSON.parse(req.body.toString());
-
         } catch (e) {
             res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
             return res.end(`400 ${STATUS_CODES[400]}\n\n${e.message}`);
         }
     }
 
-    const res2 = (res as JSONServerResponse);
-    
-    res2.json = function (data) {
+    const res2 = res as JSONServerResponse;
+
+    res2.json = (data) => {
         res.setHeader('Content-Type', jsonType);
         res.end(JSON.stringify(data));
     };
 
     next();
-};
+}
 
 export { json_middleware };

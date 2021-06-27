@@ -18,10 +18,10 @@ interface ClientRequest extends IncomingMessage {
 
 const formType = 'application/x-www-form-urlencoded';
 
-function form_middleware (req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
+function form_middleware(req: ClientRequestWithBody, res: ServerResponse, next: () => void) {
     if (req.body && req.headers['content-type'] === formType) {
         const list = req.body.toString().split('&');
-        const req2 = (req as ClientRequest);
+        const req2 = req as ClientRequest;
 
         req2.body = {};
 
@@ -38,6 +38,6 @@ function form_middleware (req: ClientRequestWithBody, res: ServerResponse, next:
     }
 
     next();
-};
+}
 
 export { form_middleware };
