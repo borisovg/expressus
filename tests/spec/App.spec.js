@@ -104,4 +104,27 @@ describe('lib/App.js', () => {
             done();
         });
     });
+
+    it('remove_middleware() idempotently removes middleware', (done) => {
+        let counter = 0;
+
+        function mw(req, res, next) {
+            counter += 1;
+            next();
+        }
+
+        app.use(mw);
+
+        httpRequest({ method: 'GET', path }, undefined, () => {
+            expect(counter).to.equal(1);
+
+            app.remove_middleware(mw);
+
+            httpRequest({ method: 'GET', path }, undefined, () => {
+                expect(counter).to.equal(1);
+                app.remove_middleware(mw);
+                done();
+            });
+        });
+    });
 });

@@ -48,21 +48,22 @@ app.post('/foo', function (req, res) {
 
 ## API
 
-- **`framework.App()`**             - application constructor
-- **`app.get(route, callback)`**    - register GET handler
-- **`app.delete(route, callback)`** - register DELETE handler
-- **`app.patch(route, callback)`**  - register PATCH handler
-- **`app.post(route, callback)`**   - register POST handler
-- **`app.put(route, callback)`**    - register PUT handler
-- **`app.remove_all_handlers()`**   - remove all handlers
-- **`app.router(req, res)`**        - router function (use as request callback for HTTP server)
-- **`app.use(middleware)`**         - register middleware function
+-   **`framework.App()`** - application constructor
+-   **`app.get(route, callback)`** - register GET handler
+-   **`app.delete(route, callback)`** - register DELETE handler
+-   **`app.patch(route, callback)`** - register PATCH handler
+-   **`app.post(route, callback)`** - register POST handler
+-   **`app.put(route, callback)`** - register PUT handler
+-   **`app.remove_all_handlers()`** - remove all handlers
+-   **`app.remove_middleware(fn)`** - remove middleware function
+-   **`app.router(req, res)`** - router function (use as request callback for HTTP server)
+-   **`app.use(fn)`** - register middleware function
 
 ## Routing
 
-- route "/foo" will match request path "/foo"
-- route "/foo/:name" will match request path like "/foo/bar" and set `req.params.name` to "bar"
-- route "/foo/:name/*" will match request path like "/foo/bar/anything/else", will set `req.params.name` to "bar" and set `req.splat` to "anything/else".
+-   route "/foo" will match request path "/foo"
+-   route "/foo/:name" will match request path like "/foo/bar" and set `req.params.name` to "bar"
+-   route "/foo/:name/\*" will match request path like "/foo/bar/anything/else", will set `req.params.name` to "bar" and set `req.splat` to "anything/else".
 
 Refer to the [http-hash package](https://github.com/Matt-Esch/http-hash) for more information.
 
