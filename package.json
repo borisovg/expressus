@@ -23,7 +23,7 @@
     "mime-types": "2.1.31"
   },
   "engines": {
-    "node": ">=4"
+    "node": ">=8"
   },
   "devDependencies": {
     "@types/node": "^14",
