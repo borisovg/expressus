@@ -47,11 +47,12 @@ describe('lib/query-middleware.js', () => {
     });
 
     it('handles edge case where URL is undefined on the request', (done) => {
-        const req = {};
+        const req = { headers: { host: 'example.com' } };
 
         lib.middleware.query()(req, null, () => {
             expect(req.query).to.eql({});
-            expect(req.url).to.equal(undefined);
+            expect(req.originalUrl).to.equal(undefined);
+            expect(req.url).to.equal('/');
             done();
         });
     });

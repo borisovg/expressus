@@ -1,5 +1,3 @@
-'use strict';
-
 /**
  * Middleware to parse request query string, which then is attached to `req.query` as an object.
  * It replaces `req.url` with the plain request path (with query part removed).
@@ -9,23 +7,25 @@
  * @license LGPL-3.0
  */
 
-import { IncomingMessage, ServerResponse } from 'http';
-import { ParsedUrlQuery } from 'querystring';
-import { parse } from 'url';
+import { URL } from 'url';
+import type { Request, Response } from './App';
 
-interface ClientRequestWithQuery extends IncomingMessage {
+export type RequestWithQuery = Request & {
     originalUrl?: string;
-    query: ParsedUrlQuery;
+    query: Record<string, string>;
     url?: string;
+};
+
+export function query_middleware(req: RequestWithQuery, _res: Response, next: () => void) {
+    const u = new URL(req.url || '', `http://${req.headers.host}`);
+
+    req.originalUrl = req.url;
+    req.url = u.pathname;
+    req.query = {};
+
+    for (const [k, v] of u.searchParams.entries()) {
+        req.query[k] = v;
+    }
+
+    next();
 }
-
-function query_middleware(req: IncomingMessage, _res: ServerResponse, next: () => void) {
-    const req2 = req as ClientRequestWithQuery;
-    const u = parse(req.url || '', true);
-
-    req2.originalUrl = req.url;
-    req2.query = u.query;
-    (req2.url = u.pathname || undefined), next();
-}
-
-export { query_middleware };
