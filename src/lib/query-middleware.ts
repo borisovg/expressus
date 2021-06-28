@@ -13,7 +13,7 @@ import type { Request, Response } from './App';
 export type RequestWithQuery = Request & {
     originalUrl?: string;
     query: Record<string, string>;
-    url?: string;
+    url: string;
 };
 
 export function query_middleware(req: RequestWithQuery, _res: Response, next: () => void) {
