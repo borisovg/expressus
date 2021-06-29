@@ -23,21 +23,21 @@ const jsonType = 'application/json';
 const jsonTypeRe = new RegExp(jsonType + '(;s?charset=.+)?$');
 
 export function json_middleware(req: RequestWithBody, res: ResponseWithJson, next: () => void) {
+    res.json = (data) => {
+        res.setHeader('Content-Type', jsonType);
+        res.end(JSON.stringify(data));
+    };
+
     if (req.body && jsonTypeRe.exec(req.headers['content-type'] || '')) {
         const req2 = req as RequestWithJson;
 
         try {
             req2.body = JSON.parse(req.body.toString());
         } catch (e) {
-            res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
-            return res.end(`400 ${STATUS_CODES[400]}\n\n${e.message}`);
+            res.statusCode = 400;
+            return res.json({ code: 400, message: STATUS_CODES[400], error: { message: e.message } });
         }
     }
-
-    res.json = (data) => {
-        res.setHeader('Content-Type', jsonType);
-        res.end(JSON.stringify(data));
-    };
 
     next();
 }

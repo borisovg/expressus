@@ -83,8 +83,9 @@ describe('lib/json-middleware.js', () => {
 
     it('returns HTTP 400 status on parse error', (done) => {
         httpRequest({ method: 'POST', path: '/test5', type: 'application/json' }, 'spanner', (res, data) => {
+            const json = JSON.parse(data);
+            expect(json.code).to.equal(400);
             expect(res.statusCode).to.equal(400);
-            expect(data.match(/(^\d+)/)[1]).to.equal('400');
             done();
         });
     });
