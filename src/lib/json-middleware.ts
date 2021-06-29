@@ -12,7 +12,7 @@ import type { Request, Response } from './App';
 import type { RequestWithBody } from './body-middleware';
 
 export type RequestWithJson = Request & {
-    body: unknown;
+    body?: unknown;
 };
 
 export type ResponseWithJson = Response & {
