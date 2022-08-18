@@ -11,31 +11,35 @@ import type { Request, Response } from './App';
 import type { RequestWithBody } from './body-middleware';
 
 export type RequestWithForm = Request & {
-    body: Record<string, string>;
+  body: Record<string, string>;
 };
 
 const formType = 'application/x-www-form-urlencoded';
 
-function form_middleware(req: RequestWithBody, res: Response, next: () => void) {
-    if (req.body && req.headers['content-type'] === formType) {
-        const list = req.body.toString().split('&');
-        const req2 = req as unknown as RequestWithForm;
+function form_middleware(
+  req: RequestWithBody,
+  res: Response,
+  next: () => void
+) {
+  if (req.body && req.headers['content-type'] === formType) {
+    const list = req.body.toString().split('&');
+    const req2 = req as unknown as RequestWithForm;
 
-        req2.body = {};
+    req2.body = {};
 
-        for (let i = 0; i < list.length; i += 1) {
-            const a = list[i].split('=');
+    for (let i = 0; i < list.length; i += 1) {
+      const a = list[i].split('=');
 
-            if (a.length !== 2) {
-                res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
-                return res.end(`400 ${STATUS_CODES[400]}`);
-            }
+      if (a.length !== 2) {
+        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+        return res.end(`400 ${STATUS_CODES[400]}`);
+      }
 
-            req2.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-        }
+      req2.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
     }
+  }
 
-    next();
+  next();
 }
 
 export { form_middleware };

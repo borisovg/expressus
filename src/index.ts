@@ -19,12 +19,12 @@ export type { RequestWithJson, ResponseWithJson } from './lib/json-middleware';
 export type { RequestWithQuery } from './lib/query-middleware';
 
 export const middleware = {
-    body: () => body_middleware,
-    form: () => form_middleware,
-    json: () => json_middleware,
-    query: () => query_middleware,
+  body: () => body_middleware,
+  form: () => form_middleware,
+  json: () => json_middleware,
+  query: () => query_middleware,
 
-    static(opts: StaticMiddlewareOptions) {
-        return make_static_middleware(opts);
-    },
+  static(opts: StaticMiddlewareOptions) {
+    return make_static_middleware(opts);
+  },
 };

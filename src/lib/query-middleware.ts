@@ -11,21 +11,25 @@ import { URL } from 'url';
 import type { Request, Response } from './App';
 
 export type RequestWithQuery = Request & {
-    originalUrl?: string;
-    query: Record<string, string>;
-    url: string;
+  originalUrl?: string;
+  query: Record<string, string>;
+  url: string;
 };
 
-export function query_middleware(req: RequestWithQuery, _res: Response, next: () => void) {
-    const u = new URL(req.url || '', `http://${req.headers.host}`);
+export function query_middleware(
+  req: RequestWithQuery,
+  _res: Response,
+  next: () => void
+) {
+  const u = new URL(req.url || '', `http://${req.headers.host}`);
 
-    req.originalUrl = req.url;
-    req.url = u.pathname;
-    req.query = {};
+  req.originalUrl = req.url;
+  req.url = u.pathname;
+  req.query = {};
 
-    for (const [k, v] of u.searchParams.entries()) {
-        req.query[k] = v;
-    }
+  for (const [k, v] of u.searchParams.entries()) {
+    req.query[k] = v;
+  }
 
-    next();
+  next();
 }
