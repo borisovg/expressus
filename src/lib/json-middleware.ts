@@ -42,7 +42,7 @@ export function json_middleware(
       return res.json({
         code: 400,
         message: STATUS_CODES[400],
-        error: { message: e.message },
+        error: { message: (e as Error).message },
       });
     }
   }
