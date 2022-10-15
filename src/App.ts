@@ -170,7 +170,15 @@ class App {
     }
   }
 
+  remove_middleware(fn?: MiddlewareFunction<any, any>) {
+    if (fn) {
+      const idx = this._middleware.indexOf(fn);
 
+      if (idx > -1) {
+        this._middleware.splice(idx, 1);
+      }
+    } else {
+      this._middleware = [];
     }
   }
 
