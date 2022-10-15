@@ -1,20 +1,20 @@
-[![Build Status](https://img.shields.io/travis/borisovg/node-web-framework/master.svg?style=flat-square)](https://travis-ci.org/borisovg/node-web-framework/)
-[![Coverage Status](https://img.shields.io/codecov/c/github/borisovg/node-web-framework/master.svg?style=flat-square)](https://codecov.io/gh/borisovg/node-web-framework/)
+[![Build Status](https://img.shields.io/travis/borisovg/expressus/master.svg?style=flat-square)](https://travis-ci.org/borisovg/expressus/)
+[![Coverage Status](https://img.shields.io/codecov/c/github/borisovg/expressus/master.svg?style=flat-square)](https://codecov.io/gh/borisovg/expressus/)
 
-# node-web-framework
+# expressus
 
 A small, fast, Express-like Node.js web framework.
 
 ## Installation
 
 ```
-npm install --save @borisov/web-framework
+npm install --save @borisov/expressus
 ```
 
 ## Usage Example
 
 ```
-const framework = require('@borisovg/web-framework');
+const framework = require('@borisovg/expressus');
 const http = require('http');
 
 const app = new framework.App();

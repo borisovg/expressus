@@ -1,5 +1,5 @@
 {
-  "name": "@borisovg/web-framework",
+  "name": "@borisovg/expressus",
   "version": "2.0.3",
   "description": "A small, fast, Express-like Node.js web framework.",
   "scripts": {
@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/borisovg/node-web-framework.git"
+    "url": "git+https://github.com/borisovg/expressus.git"
   },
   "author": {
     "name": "George Borisov",
@@ -15,16 +15,16 @@
   },
   "license": "LGPL-3.0",
   "bugs": {
-    "url": "https://github.com/borisovg/node-web-framework/issues"
+    "url": "https://github.com/borisovg/expressus/issues"
   },
-  "homepage": "https://github.com/borisovg/node-web-framework#readme",
+  "homepage": "https://github.com/borisovg/expressus#readme",
   "dependencies": {
     "http-hash": "2.0.1",
     "mime-types": "2.1.35",
     "tslib": "^2"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=12"
   },
   "devDependencies": {
     "@types/mocha": "^10",
