@@ -26,6 +26,11 @@ export function json_middleware(
   res: ResponseWithJson,
   next: () => void
 ) {
+  res.json = (data) => {
+    res.setHeader('Content-Type', jsonType);
+    res.end(JSON.stringify(data));
+  };
+
   const { method } = req;
 
   if (
@@ -38,11 +43,6 @@ export function json_middleware(
   ) {
     return next();
   }
-
-  res.json = (data) => {
-    res.setHeader('Content-Type', jsonType);
-    res.end(JSON.stringify(data));
-  };
 
   get_body(req)
     .then((body) => {

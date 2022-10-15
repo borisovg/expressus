@@ -78,22 +78,27 @@ describe('lib/json-middleware', () => {
     );
   });
 
-  it('adds res.json() which sends JSON to client', (done) => {
-    app.post('/test', (_req, res: ResponseWithJson) => {
-      strictEqual(typeof res.json, 'function');
-      res.json({ bar: 'foobar' });
-    });
+  (['get', 'post'] as const).forEach((method) => {
+    it('adds res.json() which sends JSON to client', (done) => {
+      app[method]('/test', (_req, res: ResponseWithJson) => {
+        res.json({ bar: 'foobar' });
+      });
 
-    httpRequest(
-      { method: 'POST', path: '/test', type: 'application/json' },
-      undefined,
-      (res, data) => {
-        const json = JSON.parse(data);
-        strictEqual(json.bar, 'foobar');
-        strictEqual(res.headers['content-type'], 'application/json');
-        done();
-      }
-    );
+      httpRequest(
+        {
+          method: method.toUpperCase(),
+          path: '/test',
+          type: 'application/json',
+        },
+        undefined,
+        (res, data) => {
+          const json = JSON.parse(data);
+          strictEqual(json.bar, 'foobar');
+          strictEqual(res.headers['content-type'], 'application/json');
+          done();
+        }
+      );
+    });
   });
 
   it('returns HTTP 400 status on parse error', (done) => {
