@@ -3,10 +3,10 @@
  */
 'use strict';
 
-import assert from 'node:assert';
-import { createServer } from 'node:http';
-import type { Server, ServerResponse } from 'node:http';
-import { Readable, Writable } from 'node:stream';
+import assert from 'assert';
+import { createServer } from 'http';
+import type { Server, ServerResponse } from 'http';
+import { Readable, Writable } from 'stream';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
 import type { RequestWithBody } from '..';

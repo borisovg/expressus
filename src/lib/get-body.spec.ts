@@ -2,8 +2,8 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import assert from 'node:assert';
-import { Readable } from 'node:stream';
+import assert from 'assert';
+import { Readable } from 'stream';
 
 const { get_body } = require('./get-body');
 

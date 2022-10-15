@@ -2,8 +2,8 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { strictEqual } from 'node:assert';
-import http from 'node:http';
+import { strictEqual } from 'assert';
+import http from 'http';
 import { makeClient } from './test-helpers/http-client';
 import * as lib from '.';
 

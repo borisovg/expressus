@@ -2,9 +2,9 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { deepStrictEqual, strictEqual } from 'node:assert';
-import { createServer } from 'node:http';
-import type { Server } from 'node:http';
+import { deepStrictEqual, strictEqual } from 'assert';
+import { createServer } from 'http';
+import type { Server } from 'http';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
 import type { RequestWithQuery, Response } from '..';

@@ -1,4 +1,4 @@
-import http from 'node:http';
+import http from 'http';
 
 type RequestOpts = Pick<http.RequestOptions, 'method' | 'path'> & {
   type?: string;

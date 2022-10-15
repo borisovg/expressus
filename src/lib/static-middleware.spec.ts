@@ -2,10 +2,10 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { strictEqual } from 'node:assert';
-import fs from 'node:fs';
-import { createServer } from 'node:http';
-import type { Server } from 'node:http';
+import { strictEqual } from 'assert';
+import fs from 'fs';
+import { createServer } from 'http';
+import type { Server } from 'http';
 import { createSandbox } from 'sinon';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
