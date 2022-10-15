@@ -1,3 +1,4 @@
+import { gunzip } from 'zlib';
 import type { IncomingMessage } from 'http';
 
 export async function get_body(req: IncomingMessage) {
@@ -9,7 +10,18 @@ export async function get_body(req: IncomingMessage) {
     });
 
     req.on('end', () => {
-      resolve(Buffer.concat(chunks));
+      const body = Buffer.concat(chunks);
+      if (req.headers['content-encoding'] === 'gzip') {
+        gunzip(body, (err, data) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(data);
+          }
+        });
+      } else {
+        resolve(body);
+      }
     });
 
     req.on('error', (err) => {
