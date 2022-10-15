@@ -1,3 +1,5 @@
+.nyc_*
+coverage
 dist
 local
 node_modules

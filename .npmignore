@@ -1,5 +1,10 @@
+.eslint*
+.nyc_*
 .travis.yml
 benchmark
+coverage
+dist/**/*.spec.*
+dist/test-helpers
 local
 Makefile
 src

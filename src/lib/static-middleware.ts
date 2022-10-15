@@ -9,7 +9,7 @@ import { STATUS_CODES } from 'http';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
 import * as path from 'path';
-import type { Request, Response } from './App';
+import type { Request, Response } from '../App';
 
 const re1 = new RegExp(/\.[A-Za-z0-9]+$/);
 const re2 = new RegExp(/\.\./);
@@ -18,8 +18,7 @@ type StaticMiddlewareOptions = {
   path?: string;
 };
 
-function make_static_middleware(opts: StaticMiddlewareOptions) {
-  opts = opts || {};
+function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
   opts.path = opts.path || './public';
 
   function ok(
@@ -46,32 +45,32 @@ function make_static_middleware(opts: StaticMiddlewareOptions) {
   ) {
     const url = req.url || '/';
 
-    if (req.method === 'GET' && url.match(re1) && !url.match(re2)) {
-      const file = opts.path + url;
-
-      fs.access(
-        file,
-        fs.constants.R_OK,
-        (err: NodeJS.ErrnoException | null) => {
-          if (ok(err, res, next)) {
-            fs.stat(file, (err: NodeJS.ErrnoException | null, stat) => {
-              if (ok(err, res, next)) {
-                const stream = fs.createReadStream(file);
-
-                res.writeHead(200, {
-                  'Content-Type': mime.contentType(path.extname(file)),
-                  'Content-Length': stat.size,
-                });
-
-                stream.pipe(res);
-              }
-            });
-          }
-        }
-      );
-    } else {
-      next();
+    if (req.method !== 'GET' || !url.match(re1) || url.match(re2)) {
+      return next();
     }
+
+    const file = opts.path + url;
+
+    fs.access(file, fs.constants.R_OK, (err: NodeJS.ErrnoException | null) => {
+      if (!ok(err, res, next)) {
+        return;
+      }
+
+      fs.stat(file, (err: NodeJS.ErrnoException | null, stat) => {
+        if (!ok(err, res, next)) {
+          return;
+        }
+
+        const stream = fs.createReadStream(file);
+
+        res.writeHead(200, {
+          'Content-Type': mime.contentType(path.extname(file)),
+          'Content-Length': stat.size,
+        });
+
+        stream.pipe(res);
+      });
+    });
   };
 }
 

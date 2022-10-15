@@ -8,8 +8,8 @@
  */
 
 import { STATUS_CODES } from 'http';
-import type { Request, Response } from './App';
-import type { RequestWithBody } from './body-middleware';
+import type { Request, Response } from '../App';
+import { get_body } from './get-body';
 
 export type RequestWithJson = Request & {
   body?: unknown;
@@ -20,32 +20,43 @@ export type ResponseWithJson = Response & {
 };
 
 const jsonType = 'application/json';
-const jsonTypeRe = new RegExp(jsonType + '(;s?charset=.+)?$');
 
 export function json_middleware(
-  req: RequestWithBody,
+  req: RequestWithJson,
   res: ResponseWithJson,
   next: () => void
 ) {
+  const { method } = req;
+
+  if (
+    method === 'GET' ||
+    method === 'DELETE' ||
+    method === 'HEAD' ||
+    method === 'OPTIONS' ||
+    method === 'TRACE' ||
+    !req.headers['content-type']?.includes(jsonType)
+  ) {
+    return next();
+  }
+
   res.json = (data) => {
     res.setHeader('Content-Type', jsonType);
     res.end(JSON.stringify(data));
   };
 
-  if (req.body && jsonTypeRe.exec(req.headers['content-type'] || '')) {
-    const req2 = req as RequestWithJson;
-
-    try {
-      req2.body = JSON.parse(req.body.toString());
-    } catch (e) {
+  get_body(req)
+    .then((body) => {
+      if (body.length) {
+        req.body = JSON.parse(body.toString());
+      }
+      next();
+    })
+    .catch((err) => {
       res.statusCode = 400;
-      return res.json({
+      res.json({
         code: 400,
         message: STATUS_CODES[400],
-        error: { message: (e as Error).message },
+        error: { message: (err as Error).message },
       });
-    }
-  }
-
-  next();
+    });
 }

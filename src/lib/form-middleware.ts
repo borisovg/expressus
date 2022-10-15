@@ -7,39 +7,59 @@
  */
 
 import { STATUS_CODES } from 'http';
-import type { Request, Response } from './App';
-import type { RequestWithBody } from './body-middleware';
+import type { Request, Response } from '../App';
+import { get_body } from './get-body';
 
 export type RequestWithForm = Request & {
-  body: Record<string, string>;
+  body?: Record<string, string>;
 };
 
 const formType = 'application/x-www-form-urlencoded';
 
 function form_middleware(
-  req: RequestWithBody,
+  req: RequestWithForm,
   res: Response,
   next: () => void
 ) {
-  if (req.body && req.headers['content-type'] === formType) {
-    const list = req.body.toString().split('&');
-    const req2 = req as unknown as RequestWithForm;
+  const { method } = req;
 
-    req2.body = {};
-
-    for (let i = 0; i < list.length; i += 1) {
-      const a = list[i].split('=');
-
-      if (a.length !== 2) {
-        res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
-        return res.end(`400 ${STATUS_CODES[400]}`);
-      }
-
-      req2.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
-    }
+  if (
+    method === 'GET' ||
+    method === 'DELETE' ||
+    method === 'HEAD' ||
+    method === 'OPTIONS' ||
+    method === 'TRACE' ||
+    req.headers['content-type'] !== formType
+  ) {
+    return next();
   }
 
-  next();
+  get_body(req)
+    .then((body) => {
+      if (!body.length) {
+        return next();
+      }
+
+      const list = body.toString().split('&');
+
+      req.body = {};
+
+      for (let i = 0; i < list.length; i += 1) {
+        const a = list[i].split('=');
+
+        if (a.length !== 2) {
+          throw new Error();
+        }
+
+        req.body[decodeURIComponent(a[0])] = decodeURIComponent(a[1]);
+      }
+
+      next();
+    })
+    .catch((_err) => {
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end(Buffer.from(`400 ${STATUS_CODES[400]}`));
+    });
 }
 
 export { form_middleware };

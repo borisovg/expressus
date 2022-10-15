@@ -8,7 +8,7 @@
  */
 
 import { URL } from 'url';
-import type { Request, Response } from './App';
+import type { Request, Response } from '../App';
 
 export type RequestWithQuery = Request & {
   originalUrl?: string;

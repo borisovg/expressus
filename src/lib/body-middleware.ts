@@ -5,7 +5,9 @@
  * @license LGPL-3.0
  */
 
-import type { Request, Response } from './App';
+import { STATUS_CODES } from 'http';
+import type { Request, Response } from '../App';
+import { get_body } from './get-body';
 
 export type RequestWithBody = Request & {
   body?: Buffer;
@@ -13,20 +15,32 @@ export type RequestWithBody = Request & {
 
 export function body_middleware(
   req: RequestWithBody,
-  _res: Response,
+  res: Response,
   next: () => void
 ) {
-  const chunks: Buffer[] = [];
+  const { method } = req;
 
-  req.on('data', function (buffer) {
-    chunks.push(buffer);
-  });
+  if (
+    method === 'GET' ||
+    method === 'DELETE' ||
+    method === 'HEAD' ||
+    method === 'OPTIONS' ||
+    method === 'TRACE' ||
+    req.headers?.['content-type']?.includes('application/json')
+  ) {
+    return next();
+  }
 
-  req.on('end', function () {
-    if (chunks.length) {
-      req.body = Buffer.concat(chunks);
-    }
+  get_body(req)
+    .then((body) => {
+      if (body.length) {
+        req.body = body;
+      }
 
-    next();
-  });
+      next();
+    })
+    .catch((err) => {
+      res.statusCode = 400;
+      res.end(Buffer.from(`400 ${STATUS_CODES[400]} (${err.message})`));
+    });
 }

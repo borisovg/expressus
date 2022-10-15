@@ -16,7 +16,10 @@ type Request = IncomingMessage & {
 type Response = ServerResponse;
 
 type MiddlewareCallbackFunction = () => void;
-type MiddlewareFunction<T1 extends Request, T2 extends Response> = (
+type MiddlewareFunction<
+  T1 extends IncomingMessage,
+  T2 extends ServerResponse
+> = (
   req: T1,
   Response: T2,
   next: MiddlewareCallbackFunction
@@ -167,15 +170,13 @@ class App {
     }
   }
 
-  remove_middleware(fn: MiddlewareFunction<any, any>) {
-    const idx = this._middleware.indexOf(fn);
 
-    if (idx > -1) {
-      this._middleware.splice(idx, 1);
     }
   }
 
-  use<T1 extends Request, T2 extends Response>(fn: MiddlewareFunction<T1, T2>) {
+  use<T1 extends IncomingMessage, T2 extends ServerResponse>(
+    fn: MiddlewareFunction<T1, T2>
+  ) {
     this._middleware.push(fn);
   }
 }

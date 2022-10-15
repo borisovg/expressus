@@ -11,8 +11,8 @@ import { query_middleware } from './lib/query-middleware';
 import { make_static_middleware } from './lib/static-middleware';
 import type { StaticMiddlewareOptions } from './lib/static-middleware';
 
-export { App } from './lib/App';
-export type { Request, Response } from './lib/App';
+export { App } from './App';
+export type { Request, Response } from './App';
 export type { RequestWithBody } from './lib/body-middleware';
 export type { RequestWithForm } from './lib/form-middleware';
 export type { RequestWithJson, ResponseWithJson } from './lib/json-middleware';
@@ -24,7 +24,7 @@ export const middleware = {
   json: () => json_middleware,
   query: () => query_middleware,
 
-  static(opts: StaticMiddlewareOptions) {
+  static(opts: StaticMiddlewareOptions = {}) {
     return make_static_middleware(opts);
   },
 };
