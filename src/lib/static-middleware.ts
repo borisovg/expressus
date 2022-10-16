@@ -62,9 +62,10 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
         }
 
         const stream = fs.createReadStream(file);
+        const type = mime.contentType(path.extname(file));
 
         res.writeHead(200, {
-          'Content-Type': mime.contentType(path.extname(file)),
+          'Content-Type': type || 'application/octet-stream',
           'Content-Length': stat.size,
         });
 

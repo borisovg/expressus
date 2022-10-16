@@ -68,6 +68,13 @@ describe('lib/static-middleware.js', () => {
     });
   });
 
+  it('sets "content-type" header to "application/octet-stream" for unknown file types', (done) => {
+    httpRequest({ method: 'GET', path: '/test.xxx' }, undefined, (res) => {
+      strictEqual(res.headers['content-type'], 'application/octet-stream');
+      done();
+    });
+  });
+
   it('only considers GET requests', (done) => {
     app.post('/test1.txt', (_req, res) => {
       res.end();
