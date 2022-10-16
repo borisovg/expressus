@@ -7,10 +7,10 @@ import { createServer } from 'http';
 import type { Server } from 'http';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
-import type { RequestWithForm } from '..';
+import type { FormRequest } from '..';
 
 describe('lib/form-middleware', () => {
-  const app = new App();
+  const app = new App<FormRequest>();
   const port = 10001;
   const httpRequest = makeClient(port);
   let server: Server;
@@ -29,7 +29,7 @@ describe('lib/form-middleware', () => {
   });
 
   it('does not parse when there is no body', (done) => {
-    app.post('/test', (req: RequestWithForm, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body, undefined);
       done();
@@ -39,7 +39,7 @@ describe('lib/form-middleware', () => {
   });
 
   it('does not parse without form content type', (done) => {
-    app.post('/test', (req: RequestWithForm, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body, undefined);
       done();
@@ -52,7 +52,7 @@ describe('lib/form-middleware', () => {
   });
 
   it('does not parse if request body is empty', (done) => {
-    app.post('/test', (req: RequestWithForm, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body, undefined);
       done();
@@ -69,7 +69,7 @@ describe('lib/form-middleware', () => {
   });
 
   it('creates replaces req.body with parsed x-www-form-urlencoded data', (done) => {
-    app.post('/test', (req: RequestWithForm, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body?.foo, 'foofoo');
       strictEqual(req.body?.['/bar'], '/bar');

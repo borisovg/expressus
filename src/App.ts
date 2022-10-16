@@ -5,36 +5,27 @@
  */
 
 import { IncomingMessage, STATUS_CODES, ServerResponse } from 'http';
-import httpHash from 'http-hash';
+import type { Request, Response } from './types';
+import httpHash = require('http-hash');
 
-type Request = IncomingMessage & {
-  method: string;
-  params: RequestParams;
-  splat: RequestSplat;
-};
-
-type Response = ServerResponse;
-
-type MiddlewareCallbackFunction = () => void;
-type MiddlewareFunction<
-  T1 extends IncomingMessage,
-  T2 extends ServerResponse
-> = (
+type MiddlewareFunction<T1 extends Request, T2 extends Response> = (
   req: T1,
   Response: T2,
-  next: MiddlewareCallbackFunction
+  next: () => void
 ) => Promise<void> | void;
-type HandlerFunction<T1 extends Request, T2 extends Response> = (
+type HandlerFunction<T1 extends Request<Path>, T2 extends Response, Path> = (
   req: T1,
   res: T2
 ) => Promise<void> | void;
-type RequestParams = Record<string, string>;
-type RequestSplat = string | null;
-type RouteHandlerFunction<T1 extends Request, T2 extends Response> = (
+type RouteHandlerFunction<
+  T1 extends Request<Path>,
+  T2 extends Response,
+  Path
+> = (
   req: T1,
   res: T2,
-  params: RequestParams,
-  splat: RequestSplat
+  params: Request<Path>['params'],
+  splat: Request<Path>['splat']
 ) => Promise<void> | void;
 
 function return_404(res: ServerResponse) {
@@ -42,14 +33,14 @@ function return_404(res: ServerResponse) {
   res.end(`404 ${STATUS_CODES[404]}`);
 }
 
-function make_handler<T1 extends Request, T2 extends Response>(
-  callback: HandlerFunction<T1, T2>
-): RouteHandlerFunction<T1, T2> {
+function make_handler<T1 extends Request<Path>, T2 extends Response, Path>(
+  callback: HandlerFunction<T1, T2, Path>
+): RouteHandlerFunction<T1, T2, Path> {
   return function handler(
     req: T1,
     res: T2,
-    params: RequestParams,
-    splat: RequestSplat
+    params: Request<Path>['params'],
+    splat: Request<Path>['splat']
   ) {
     req.params = params;
     req.splat = splat;
@@ -57,24 +48,17 @@ function make_handler<T1 extends Request, T2 extends Response>(
   };
 }
 
-class App {
-  private _middleware: MiddlewareFunction<any, any>[];
-  private _routes: Record<
+export class App<ReqMiddleware = {}, ResMiddleware = {}> {
+  private middlewares: MiddlewareFunction<any, any>[];
+  private routes: Record<
     string,
-    {
-      get(path: string): {
-        handler: RouteHandlerFunction<any, any>;
-        params: RequestParams;
-        splat: RequestSplat;
-      };
-      set(path: string, handler: RouteHandlerFunction<any, any>): void;
-    }
+    ReturnType<typeof httpHash<RouteHandlerFunction<any, any, any>>>
   >;
   public router: (req: IncomingMessage, res: ServerResponse) => void;
 
   constructor() {
-    this._middleware = [];
-    this._routes = {
+    this.middlewares = [];
+    this.routes = {
       DELETE: httpHash(),
       GET: httpHash(),
       OPTIONS: httpHash(),
@@ -87,8 +71,8 @@ class App {
       const method = req.method as string;
       const url = req.url as string;
 
-      if (this._routes[method]) {
-        const r = this._routes[method].get(url);
+      if (this.routes[method]) {
+        const r = this.routes[method].get(url);
 
         if (r.handler) {
           r.handler(req, res, r.params, r.splat);
@@ -101,13 +85,13 @@ class App {
     };
 
     this.router = (req: IncomingMessage, res: ServerResponse) => {
-      if (!this._middleware.length) {
+      if (!this.middlewares.length) {
         return route_request(req, res);
       }
 
       const loop = (i: number) => {
-        if (this._middleware[i]) {
-          this._middleware[i](req, res, function () {
+        if (this.middlewares[i]) {
+          this.middlewares[i](req, res, function () {
             loop(i + 1);
           });
         } else {
@@ -119,74 +103,73 @@ class App {
     };
   }
 
-  delete<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.DELETE.set(path, make_handler(handler));
+  delete<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.DELETE.set(path, make_handler(handler));
   }
 
-  get<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.GET.set(path, make_handler(handler));
+  get<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: string, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.GET.set(path, make_handler(handler));
   }
 
-  options<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.OPTIONS.set(path, make_handler(handler));
+  options<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: string, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.OPTIONS.set(path, make_handler(handler));
   }
 
-  patch<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.PATCH.set(path, make_handler(handler));
+  patch<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: string, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.PATCH.set(path, make_handler(handler));
   }
 
-  post<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.POST.set(path, make_handler(handler));
+  post<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: string, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.POST.set(path, make_handler(handler));
   }
 
-  put<T1 extends Request, T2 extends Response>(
-    path: string,
-    handler: HandlerFunction<T1, T2>
-  ) {
-    this._routes.PUT.set(path, make_handler(handler));
+  put<
+    T1 extends Request<Path> & ReqMiddleware,
+    T2 extends Response & ResMiddleware,
+    Path extends string
+  >(path: string, handler: HandlerFunction<T1, T2, Path>) {
+    this.routes.PUT.set(path, make_handler(handler));
   }
 
   remove_all_handlers() {
-    for (const method in this._routes) {
-      // istanbul ignore else
-      if (this._routes.hasOwnProperty(method)) {
-        this._routes[method] = httpHash();
-      }
-    }
+    Object.keys(this.routes).forEach((method) => {
+      this.routes[method] = httpHash();
+    });
   }
 
   remove_middleware(fn?: MiddlewareFunction<any, any>) {
     if (fn) {
-      const idx = this._middleware.indexOf(fn);
+      const idx = this.middlewares.indexOf(fn);
 
       if (idx > -1) {
-        this._middleware.splice(idx, 1);
+        this.middlewares.splice(idx, 1);
       }
     } else {
-      this._middleware = [];
+      this.middlewares = [];
     }
   }
 
-  use<T1 extends IncomingMessage, T2 extends ServerResponse>(
-    fn: MiddlewareFunction<T1, T2>
-  ) {
-    this._middleware.push(fn);
+  use<T1 extends Request, T2 extends Response>(fn: MiddlewareFunction<T1, T2>) {
+    this.middlewares.push(fn);
   }
 }
-
-export { App, Request, Response };

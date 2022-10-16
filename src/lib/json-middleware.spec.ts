@@ -7,10 +7,10 @@ import { createServer } from 'http';
 import type { Server } from 'http';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
-import type { RequestWithJson, ResponseWithJson } from '..';
+import type { JsonRequest, JsonResponse } from '..';
 
 describe('lib/json-middleware', () => {
-  const app = new App();
+  const app = new App<JsonRequest, JsonResponse>();
   const port = 10001;
   const httpRequest = makeClient(port);
   let server: Server;
@@ -29,7 +29,7 @@ describe('lib/json-middleware', () => {
   after((done) => server.close(done));
 
   it('does not parse when there is no body', (done) => {
-    app.post('/test', (req: RequestWithJson, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body, undefined);
       done();
@@ -39,7 +39,7 @@ describe('lib/json-middleware', () => {
   });
 
   it('does not parse without JSON content type', (done) => {
-    app.post('/test', (req: RequestWithJson, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual(req.body, undefined);
       done();
@@ -49,7 +49,7 @@ describe('lib/json-middleware', () => {
   });
 
   it('creates replaces req.body with parsed JSON', (done) => {
-    app.post('/test', (req: RequestWithJson, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual((req.body as Record<string, unknown>).foo, 'foofoo');
       done();
@@ -62,7 +62,7 @@ describe('lib/json-middleware', () => {
   });
 
   it('creates replaces req.body with parsed JSON when "content-type" includes charset', (done) => {
-    app.post('/test', (req: RequestWithJson, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       strictEqual((req.body as Record<string, unknown>).foo, 'foofoo');
       done();
@@ -80,7 +80,7 @@ describe('lib/json-middleware', () => {
 
   (['get', 'post'] as const).forEach((method) => {
     it('adds res.json() which sends JSON to client', (done) => {
-      app[method]('/test', (_req, res: ResponseWithJson) => {
+      app[method]('/test', (_req, res) => {
         res.json({ bar: 'foobar' });
       });
 

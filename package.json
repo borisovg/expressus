@@ -27,6 +27,7 @@
     "node": ">=12"
   },
   "devDependencies": {
+    "@types/mime-types": "^2",
     "@types/mocha": "^10",
     "@types/node": "^16",
     "@types/sinon": "^10",

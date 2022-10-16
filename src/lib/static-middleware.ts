@@ -9,7 +9,7 @@ import { STATUS_CODES } from 'http';
 import * as fs from 'fs';
 import * as mime from 'mime-types';
 import * as path from 'path';
-import type { Request, Response } from '../App';
+import type { Request, Response } from '../types';
 
 const re1 = new RegExp(/\.[A-Za-z0-9]+$/);
 const re2 = new RegExp(/\.\./);

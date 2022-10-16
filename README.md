@@ -14,11 +14,11 @@ npm install --save @borisov/expressus
 ## Usage Example
 
 ```
-const framework = require('@borisovg/expressus');
-const http = require('http');
+const { App, middleware } = require('@borisovg/expressus');
+const { createServer } = require('http');
 
-const app = new framework.App();
-const server = http.createServer(app.router);
+const app = new App();
+const server = createServer(app.router);
 
 server.listen(8080);
 
@@ -37,12 +37,29 @@ app.get('/foo/:a/:b', function (req, res) {
 
 // JSON POST route
 
-app.use(framework.middleware.body());
-app.use(framework.middleware.json());
+app.use(middleware.json());
 
 app.post('/foo', function (req, res) {
     console.log(req.body);
     res.json({ result: 'OK' });
+});
+```
+
+## TypeScript Example
+
+When using any of the included middleware, or if you add custom middleware that modifies the request or response object passed to the handler you can pass additional type information to the generic `App` class.
+
+```
+import { App, middleware } from '@borisovg/expressus';
+import type { JsonRequest, JsonResponse, QueryRequest } from '@borisovg/expressus';
+
+const app = new App<JsonRequest & QueryRequest, JsonResponse>;
+
+app.use(middleware.json());
+app.use(middleware.query());
+
+app.get('/foo', function (req, res) {
+    // req.body, req.query and res.json will be typed
 });
 ```
 

@@ -8,9 +8,11 @@
  */
 
 import { URL } from 'url';
-import type { Request, Response } from '../App';
+import type { Request, Response } from '../types';
 
-export type RequestWithQuery = Request & {
+export type RequestWithQuery<Path = string> = Request<Path> & QueryRequest;
+
+export type QueryRequest = {
   originalUrl?: string;
   query: Record<string, string>;
   url: string;

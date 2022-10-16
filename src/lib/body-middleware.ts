@@ -6,10 +6,12 @@
  */
 
 import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../App';
+import type { Request, Response } from '../types';
 import { get_body } from './get-body';
 
-export type RequestWithBody = Request & {
+export type RequestWithBody<Path = string> = Request<Path> & BodyRequest;
+
+export type BodyRequest = {
   body?: Buffer;
 };
 

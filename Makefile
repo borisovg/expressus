@@ -29,6 +29,7 @@ test: node_modules build
 				--reporter=text \
 				-n src \
 				-x 'src/**/*.spec.ts' \
+				-x 'src/http-hash.d.ts' \
 				-x 'src/types.*'
 
 .PHONY: help

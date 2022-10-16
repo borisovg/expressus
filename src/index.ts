@@ -12,11 +12,11 @@ import { make_static_middleware } from './lib/static-middleware';
 import type { StaticMiddlewareOptions } from './lib/static-middleware';
 
 export { App } from './App';
-export type { Request, Response } from './App';
-export type { RequestWithBody } from './lib/body-middleware';
-export type { RequestWithForm } from './lib/form-middleware';
-export type { RequestWithJson, ResponseWithJson } from './lib/json-middleware';
-export type { RequestWithQuery } from './lib/query-middleware';
+export type { BodyRequest } from './lib/body-middleware';
+export type { FormRequest } from './lib/form-middleware';
+export type { JsonRequest, JsonResponse } from './lib/json-middleware';
+export type { QueryRequest } from './lib/query-middleware';
+export type { Request, Response } from './types';
 
 export const middleware = {
   body: () => body_middleware,

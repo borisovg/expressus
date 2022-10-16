@@ -7,10 +7,12 @@
  */
 
 import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../App';
+import type { Request, Response } from '../types';
 import { get_body } from './get-body';
 
-export type RequestWithForm = Request & {
+export type RequestWithForm<Path = string> = Request<Path> & FormRequest;
+
+export type FormRequest = {
   body?: Record<string, string>;
 };
 

@@ -5,7 +5,7 @@
 import { rejects, strictEqual } from 'assert';
 import { gzip } from 'zlib';
 import { Readable } from 'stream';
-import { Request } from '../App';
+import { Request } from '../types';
 
 const { get_body } = require('./get-body');
 

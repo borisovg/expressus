@@ -9,10 +9,11 @@ import type { Server, ServerResponse } from 'http';
 import { Readable, Writable } from 'stream';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
-import type { RequestWithBody } from '..';
+import type { BodyRequest } from '..';
+import type { RequestWithBody } from './body-middleware';
 
 describe('lib/body-middleware.js', () => {
-  const app = new App();
+  const app = new App<BodyRequest>();
   const port = 10001;
   const httpRequest = makeClient(port);
   let server: Server;
@@ -31,7 +32,7 @@ describe('lib/body-middleware.js', () => {
   after((done) => server.close(done));
 
   it('creates req.body object that is a buffer if request has body', (done) => {
-    app.post('/test', (req: RequestWithBody, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       assert.strictEqual(Buffer.isBuffer(req.body), true);
       assert.strictEqual(req.body?.toString(), 'foofoo');
@@ -42,7 +43,7 @@ describe('lib/body-middleware.js', () => {
   });
 
   it('does not create req.body for JSON content type', (done) => {
-    app.post('/test', (req: RequestWithBody, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       assert.strictEqual(req.body, undefined);
       done();
@@ -55,7 +56,7 @@ describe('lib/body-middleware.js', () => {
   });
 
   it('does not create req.body if request has no body', (done) => {
-    app.post('/test', (req: RequestWithBody, res) => {
+    app.post('/test', (req, res) => {
       res.end();
       assert.strictEqual(req.body, undefined);
       done();
@@ -66,7 +67,7 @@ describe('lib/body-middleware.js', () => {
 
   (['get', 'delete', 'options'] as const).forEach((method) => {
     it(`does nothing for ${method.toUpperCase()} method`, (done) => {
-      app[method]('/test', (req: RequestWithBody, res) => {
+      app[method]('/test', (req, res) => {
         res.end();
         assert.strictEqual(req.body, undefined);
         done();

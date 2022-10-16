@@ -7,14 +7,15 @@ import { createServer } from 'http';
 import type { Server } from 'http';
 import { makeClient } from '../test-helpers/http-client';
 import { App, middleware } from '..';
-import type { RequestWithQuery, Response } from '..';
+import type { QueryRequest, Response } from '..';
+import type { RequestWithQuery } from './query-middleware';
 
 describe('lib/query-middleware', () => {
-  const app = new App();
+  const app = new App<QueryRequest>();
   const path = '/test?foo=foofoo';
   const port = 10001;
   const httpRequest = makeClient(port);
-  let r: RequestWithQuery;
+  let r: QueryRequest;
   let server: Server;
 
   before((done) => {
@@ -29,7 +30,7 @@ describe('lib/query-middleware', () => {
   });
 
   it('creates req.query object', (done) => {
-    app.get('/test', (req: RequestWithQuery, res) => {
+    app.get('/test', (req, res) => {
       r = req;
       res.end();
       strictEqual(req.query.foo, 'foofoo');

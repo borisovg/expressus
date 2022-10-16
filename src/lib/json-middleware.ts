@@ -8,14 +8,18 @@
  */
 
 import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../App';
+import type { Request, Response } from '../types';
 import { get_body } from './get-body';
 
-export type RequestWithJson = Request & {
+export type RequestWithJson<Path = string> = Request<Path> & JsonRequest;
+
+export type ResponseWithJson = Response & JsonResponse;
+
+export type JsonRequest = {
   body?: unknown;
 };
 
-export type ResponseWithJson = Response & {
+export type JsonResponse = {
   json: (data: unknown) => void;
 };
 
