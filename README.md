@@ -1,4 +1,4 @@
-[![Build Status](https://img.shields.io/travis/borisovg/expressus/master.svg?style=flat-square)](https://app.travis-ci.com/github/borisovg/expressus)
+[![Tests](https://github.com/borisovg/expressus/actions/workflows/tests.yaml/badge.svg)](https://github.com/borisovg/expressus/actions/workflows/tests.yaml)
 [![Coverage Status](https://img.shields.io/codecov/c/github/borisovg/expressus/master.svg?style=flat-square)](https://codecov.io/gh/borisovg/expressus/)
 
 # expressus

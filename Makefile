@@ -10,11 +10,6 @@ build: node_modules
 clean:
 	rm -rf dist node_modules package-lock.json npm-debug.log .nyc* coverage
 
-.PHONY: coverage
-coverage:
-	./node_modules/.bin/c8 report > $(LCOV)
-	./node_modules/.bin/codecov -f $(LCOV)
-
 ## test:  run tests
 .PHONY: test
 test: node_modules build
@@ -26,6 +21,7 @@ test: node_modules build
 				--bail \
 				--clean \
 				--reporter=html \
+				--reporter=lcov \
 				--reporter=text \
 				-n src \
 				-x 'src/**/*.spec.ts' \

@@ -32,7 +32,6 @@
     "@types/node": "^18",
     "@types/sinon": "^10",
     "c8": "^7",
-    "codecov": "^3",
     "eslint": "^8",
     "mocha": "^10",
     "prettier": "^2",
