@@ -1,6 +1,6 @@
 {
   "name": "@borisovg/expressus",
-  "version": "3.2.1",
+  "version": "3.2.2",
   "description": "A small, fast, Express-like Node.js web framework.",
   "scripts": {
     "test": "make test"
