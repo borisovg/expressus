@@ -29,14 +29,14 @@
   "devDependencies": {
     "@types/mime-types": "^2",
     "@types/mocha": "^10",
-    "@types/node": "^16",
+    "@types/node": "^18",
     "@types/sinon": "^10",
     "c8": "^7",
     "codecov": "^3",
     "eslint": "^8",
     "mocha": "^10",
     "prettier": "^2",
-    "sinon": "^14",
+    "sinon": "^15",
     "ts-mocha": "^10",
     "typescript": "^4"
   },
