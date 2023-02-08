@@ -47,7 +47,8 @@ function form_middleware(
       req.body = {};
 
       for (let i = 0; i < list.length; i += 1) {
-        const a = list[i].split('=');
+        const param = list[i] as string;
+        const a = param.split('=') as [string, string];
 
         if (a.length !== 2) {
           throw new Error();

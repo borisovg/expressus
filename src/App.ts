@@ -27,6 +27,7 @@ type RouteHandlerFunction<
   params: Request<Path>['params'],
   splat: Request<Path>['splat']
 ) => Promise<void> | void;
+type Methods = 'DELETE' | 'GET' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT';
 
 function return_404(res: ServerResponse) {
   res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -51,7 +52,7 @@ function make_handler<T1 extends Request<Path>, T2 extends Response, Path>(
 export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   private middlewares: MiddlewareFunction<any, any>[];
   private routes: Record<
-    string,
+    Methods,
     ReturnType<typeof httpHash<RouteHandlerFunction<any, any, any>>>
   >;
   public router: (req: IncomingMessage, res: ServerResponse) => void;
@@ -68,11 +69,12 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     };
 
     const route_request = (req: IncomingMessage, res: ServerResponse) => {
-      const method = req.method as string;
+      const method = req.method as Methods;
       const url = req.url as string;
+      const route = this.routes[method];
 
-      if (this.routes[method]) {
-        const r = this.routes[method].get(url);
+      if (route) {
+        const r = route.get(url);
 
         if (r.handler) {
           r.handler(req, res, r.params, r.splat);
@@ -90,8 +92,10 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
       }
 
       const loop = (i: number) => {
-        if (this.middlewares[i]) {
-          this.middlewares[i](req, res, function () {
+        const mw = this.middlewares[i];
+
+        if (mw) {
+          mw(req, res, function () {
             loop(i + 1);
           });
         } else {
@@ -153,7 +157,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
 
   remove_all_handlers() {
     Object.keys(this.routes).forEach((method) => {
-      this.routes[method] = httpHash();
+      this.routes[method as Methods] = httpHash();
     });
   }
 
