@@ -53,7 +53,7 @@ When using any of the included middleware, or if you add custom middleware that 
 import { App, middleware } from '@borisovg/expressus';
 import type { JsonRequest, JsonResponse, QueryRequest } from '@borisovg/expressus';
 
-const app = new App<JsonRequest & QueryRequest, JsonResponse>;
+const app = new App<JsonRequest & QueryRequest, JsonResponse>();
 
 app.use(middleware.json());
 app.use(middleware.query());
@@ -96,7 +96,7 @@ Some basic middleware is included in the framework.
 This middleware will load the request body and attach it to `req.body` as a buffer.
 
 ```
-app.use(framework.middleware.body());
+app.use(middleware.body());
 ```
 
 ### Request Body Form Parser
@@ -104,7 +104,7 @@ app.use(framework.middleware.body());
 This middleware will parse `req.body` form data and replace `req.body` with the result.
 
 ```
-app.use(framework.middleware.form());
+app.use(middleware.form());
 ```
 
 ### Request Body JSON Parser
@@ -113,7 +113,7 @@ This middleware will parse `req.body` JSON data and replace `req.body` with the 
 It will also add a `res.json(data)` convenience method.
 
 ```
-app.use(framework.middleware.json());
+app.use(middleware.json());
 ```
 
 ### Request Query String Parser
@@ -121,7 +121,7 @@ app.use(framework.middleware.json());
 This middleware will load parse the request query string and attach it to `req.query`.
 
 ```
-app.use(framework.middleware.query());
+app.use(middleware.query());
 ```
 
 ### Static Content Server
@@ -131,6 +131,6 @@ In production, consider fronting your app with a real HTTP server (e.g. Nginx) f
 
 ```
 if (process.env.NODE_ENV !== 'production') {
-    app.use(framework.middleware.static({ path: './public' }));
+    app.use(middleware.static({ path: './public' }));
 }
 ```
