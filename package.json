@@ -29,15 +29,15 @@
   "devDependencies": {
     "@types/mime-types": "^2",
     "@types/mocha": "^10",
-    "@types/node": "^18",
-    "@types/sinon": "^10",
-    "c8": "^7",
+    "@types/node": "^20",
+    "@types/sinon": "^17",
+    "c8": "^9",
     "eslint": "^8",
     "mocha": "^10",
-    "prettier": "^2",
-    "sinon": "^15",
+    "prettier": "^3",
+    "sinon": "^17",
     "ts-mocha": "^10",
-    "typescript": "^4"
+    "typescript": "^5"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts"
