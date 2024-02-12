@@ -14,6 +14,7 @@ import type { StaticMiddlewareOptions } from './lib/static-middleware';
 export { App } from './App';
 export type { BodyRequest } from './lib/body-middleware';
 export type { FormRequest } from './lib/form-middleware';
+export { get_body } from './lib/get-body';
 export type { JsonRequest, JsonResponse } from './lib/json-middleware';
 export type { QueryRequest } from './lib/query-middleware';
 export type { Request, Response } from './types';

@@ -5,13 +5,12 @@
 import { rejects, strictEqual } from 'assert';
 import { gzip } from 'zlib';
 import { Readable } from 'stream';
-import { Request } from '../types';
-
-const { get_body } = require('./get-body');
+import { get_body } from '..';
+import type { Request } from '../types';
 
 describe('lib/get-body', () => {
   it('throws an error if stream emits error', async () => {
-    const req = new Readable({ read() {} });
+    const req = new Readable({ read() {} }) as Request;
     setImmediate(() => req.emit('error', new Error('test')));
     await rejects(() => get_body(req), { message: 'test' });
   });
