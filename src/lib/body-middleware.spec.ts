@@ -42,19 +42,6 @@ describe('lib/body-middleware.js', () => {
     httpRequest({ method: 'POST', path: '/test' }, 'foofoo');
   });
 
-  it('does not create req.body for JSON content type', (done) => {
-    app.post('/test', (req, res) => {
-      res.end();
-      assert.strictEqual(req.body, undefined);
-      done();
-    });
-
-    httpRequest(
-      { method: 'POST', path: '/test', type: 'application/json' },
-      '{"foo":"foofoo"}'
-    );
-  });
-
   it('does not create req.body if request has no body', (done) => {
     app.post('/test', (req, res) => {
       res.end();

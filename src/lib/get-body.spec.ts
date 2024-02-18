@@ -48,4 +48,21 @@ describe('lib/get-body', () => {
 
     rejects(get_body(req), { message: 'Error: incorrect header check' });
   });
+
+  it('is idempotent', async () => {
+    const req = new Readable({
+      read() {
+        this.push(Buffer.from('foo'));
+        this.push(null);
+      },
+    }) as Request;
+
+    req.headers = {};
+
+    let data = await get_body(req);
+    strictEqual(data.toString(), 'foo');
+
+    data = await get_body(req);
+    strictEqual(data.toString(), '');
+  });
 });

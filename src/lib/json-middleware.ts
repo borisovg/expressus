@@ -52,6 +52,11 @@ export function json_middleware(
     .then((body) => {
       if (body.length) {
         req.body = JSON.parse(body.toString());
+      } else if (
+        req.body &&
+        (typeof req.body === 'string' || Buffer.isBuffer(req.body))
+      ) {
+        req.body = JSON.parse(req.body.toString());
       }
       next();
     })

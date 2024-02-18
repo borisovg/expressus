@@ -2,7 +2,7 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { strictEqual } from 'assert';
+import { deepStrictEqual, strictEqual } from 'assert';
 import { createServer } from 'http';
 import type { Server } from 'http';
 import { makeClient } from '../test-helpers/http-client';
@@ -51,7 +51,7 @@ describe('lib/json-middleware', () => {
   it('creates replaces req.body with parsed JSON', (done) => {
     app.post('/test', (req, res) => {
       res.end();
-      strictEqual((req.body as Record<string, unknown>).foo, 'foofoo');
+      deepStrictEqual(req.body, { foo: 'foofoo' });
       done();
     });
 
@@ -64,7 +64,7 @@ describe('lib/json-middleware', () => {
   it('creates replaces req.body with parsed JSON when "content-type" includes charset', (done) => {
     app.post('/test', (req, res) => {
       res.end();
-      strictEqual((req.body as Record<string, unknown>).foo, 'foofoo');
+      deepStrictEqual(req.body, { foo: 'foofoo' });
       done();
     });
 
@@ -111,6 +111,27 @@ describe('lib/json-middleware', () => {
         strictEqual(res.statusCode, 400);
         done();
       },
+    );
+  });
+
+  it('does not conflict with body-middleware', (done) => {
+    app.remove_middleware();
+    app.use(middleware.body());
+    app.use(middleware.json());
+
+    app.post('/test', (req, res) => {
+      res.end();
+      deepStrictEqual(req.body, { foo: 'foofoo' });
+      done();
+    });
+
+    httpRequest(
+      {
+        method: 'POST',
+        path: '/test',
+        type: 'application/json;charset=utf-8',
+      },
+      '{"foo":"foofoo"}',
     );
   });
 });

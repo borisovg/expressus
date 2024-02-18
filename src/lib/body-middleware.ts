@@ -27,8 +27,7 @@ export function body_middleware(
     method === 'DELETE' ||
     method === 'HEAD' ||
     method === 'OPTIONS' ||
-    method === 'TRACE' ||
-    req.headers?.['content-type']?.includes('application/json')
+    method === 'TRACE'
   ) {
     return next();
   }

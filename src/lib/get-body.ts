@@ -2,6 +2,10 @@ import { gunzip } from 'zlib';
 import type { IncomingMessage } from 'http';
 
 export async function get_body(req: IncomingMessage) {
+  if (req.readableEnded) {
+    return Buffer.from('');
+  }
+
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
 
