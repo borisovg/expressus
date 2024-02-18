@@ -47,7 +47,7 @@ describe('lib/form-middleware', () => {
 
     httpRequest(
       { method: 'POST', path: '/test', type: 'text/plain' },
-      'foo=foofoo'
+      'foo=foofoo',
     );
   });
 
@@ -64,7 +64,7 @@ describe('lib/form-middleware', () => {
         path: '/test',
         type: 'application/x-www-form-urlencoded',
       },
-      ''
+      '',
     );
   });
 
@@ -82,7 +82,7 @@ describe('lib/form-middleware', () => {
         path: '/test',
         type: 'application/x-www-form-urlencoded',
       },
-      'foo=foofoo&%2Fbar=%2Fbar'
+      'foo=foofoo&%2Fbar=%2Fbar',
     );
   });
 
@@ -98,7 +98,7 @@ describe('lib/form-middleware', () => {
         strictEqual(res.statusCode, 400);
         strictEqual(data.match(/(^\d+)/)?.[1], '400');
         done();
-      }
+      },
     );
   });
 });

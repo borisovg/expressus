@@ -52,7 +52,7 @@ describe('lib/App.js', () => {
           done();
         });
       });
-    }
+    },
   );
 
   it('registers middleware and applies it to request', (done) => {

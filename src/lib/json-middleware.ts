@@ -28,7 +28,7 @@ const jsonType = 'application/json';
 export function json_middleware(
   req: RequestWithJson,
   res: ResponseWithJson,
-  next: () => void
+  next: () => void,
 ) {
   res.json = (data) => {
     res.setHeader('Content-Type', jsonType);

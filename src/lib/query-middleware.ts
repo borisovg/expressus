@@ -21,7 +21,7 @@ export type QueryRequest = {
 export function query_middleware(
   req: RequestWithQuery,
   _res: Response,
-  next: () => void
+  next: () => void,
 ) {
   const u = new URL(req.url || '', `http://${req.headers.host}`);
 

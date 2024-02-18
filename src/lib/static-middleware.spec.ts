@@ -60,10 +60,10 @@ describe('lib/static-middleware.js', () => {
                 strictEqual(res.headers['content-type'], 'image/png');
                 strictEqual(data, buffer.toString());
                 done();
-              }
+              },
             );
           });
-        }
+        },
       );
     });
   });
@@ -126,7 +126,7 @@ describe('lib/static-middleware.js', () => {
             strictEqual(err, null);
             done();
           });
-        }
+        },
       );
     });
   });
@@ -144,7 +144,7 @@ describe('lib/static-middleware.js', () => {
         strictEqual(res.statusCode, 500);
         strictEqual(data.match(/(^\d+)/)?.[1], '500');
         done();
-      }
+      },
     );
   });
 

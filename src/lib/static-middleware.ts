@@ -24,7 +24,7 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
   function ok(
     err: NodeJS.ErrnoException | null,
     res: Response,
-    next: () => void
+    next: () => void,
   ) {
     if (!err) {
       return true;
@@ -41,7 +41,7 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
   return function static_middleware(
     req: Request,
     res: Response,
-    next: () => void
+    next: () => void,
   ) {
     const url = req.url || '/';
 

@@ -8,7 +8,7 @@ export function makeClient(port: number) {
   return function request(
     opts: RequestOpts,
     data?: unknown,
-    callback?: (res: http.IncomingMessage, data: string) => void
+    callback?: (res: http.IncomingMessage, data: string) => void,
   ) {
     const req = http.request(
       { port: port, method: opts.method, path: opts.path },
@@ -24,7 +24,7 @@ export function makeClient(port: number) {
             callback(res, Buffer.concat(chunks).toString());
           }
         });
-      }
+      },
     );
 
     if (opts.type) {

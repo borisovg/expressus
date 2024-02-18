@@ -20,13 +20,14 @@ type HandlerFunction<T1 extends Request<Path>, T2 extends Response, Path> = (
 type RouteHandlerFunction<
   T1 extends Request<Path>,
   T2 extends Response,
-  Path
+  Path,
 > = (
   req: T1,
   res: T2,
   params: Request<Path>['params'],
-  splat: Request<Path>['splat']
+  splat: Request<Path>['splat'],
 ) => Promise<void> | void;
+
 type Methods = 'DELETE' | 'GET' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT';
 
 function return_404(res: ServerResponse) {
@@ -35,13 +36,13 @@ function return_404(res: ServerResponse) {
 }
 
 function make_handler<T1 extends Request<Path>, T2 extends Response, Path>(
-  callback: HandlerFunction<T1, T2, Path>
+  callback: HandlerFunction<T1, T2, Path>,
 ): RouteHandlerFunction<T1, T2, Path> {
   return function handler(
     req: T1,
     res: T2,
     params: Request<Path>['params'],
-    splat: Request<Path>['splat']
+    splat: Request<Path>['splat'],
   ) {
     req.params = params;
     req.splat = splat;
@@ -110,7 +111,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   delete<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.DELETE.set(path, make_handler(handler));
   }
@@ -118,7 +119,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   get<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.GET.set(path, make_handler(handler));
   }
@@ -126,7 +127,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   options<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.OPTIONS.set(path, make_handler(handler));
   }
@@ -134,7 +135,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   patch<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.PATCH.set(path, make_handler(handler));
   }
@@ -142,7 +143,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   post<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.POST.set(path, make_handler(handler));
   }
@@ -150,7 +151,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   put<
     T1 extends Request<Path> & ReqMiddleware,
     T2 extends Response & ResMiddleware,
-    Path extends string
+    Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
     this.routes.PUT.set(path, make_handler(handler));
   }

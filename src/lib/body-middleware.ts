@@ -18,7 +18,7 @@ export type BodyRequest = {
 export function body_middleware(
   req: RequestWithBody,
   res: Response,
-  next: () => void
+  next: () => void,
 ) {
   const { method } = req;
 

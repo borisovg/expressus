@@ -57,7 +57,7 @@ describe('lib/json-middleware', () => {
 
     httpRequest(
       { method: 'POST', path: '/test', type: 'application/json' },
-      '{"foo":"foofoo"}'
+      '{"foo":"foofoo"}',
     );
   });
 
@@ -74,7 +74,7 @@ describe('lib/json-middleware', () => {
         path: '/test',
         type: 'application/json;charset=utf-8',
       },
-      '{"foo":"foofoo"}'
+      '{"foo":"foofoo"}',
     );
   });
 
@@ -96,7 +96,7 @@ describe('lib/json-middleware', () => {
           strictEqual(json.bar, 'foobar');
           strictEqual(res.headers['content-type'], 'application/json');
           done();
-        }
+        },
       );
     });
   });
@@ -110,7 +110,7 @@ describe('lib/json-middleware', () => {
         strictEqual(json.code, 400);
         strictEqual(res.statusCode, 400);
         done();
-      }
+      },
     );
   });
 });

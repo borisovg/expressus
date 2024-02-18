@@ -21,7 +21,7 @@ const formType = 'application/x-www-form-urlencoded';
 function form_middleware(
   req: RequestWithForm,
   res: Response,
-  next: () => void
+  next: () => void,
 ) {
   const { method } = req;
 
