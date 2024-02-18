@@ -37,6 +37,7 @@ describe('lib/App.js', () => {
           strictEqual(req.method, m);
           strictEqual(req.url, path);
           strictEqual(req.params.foo, 'foofoo');
+          strictEqual(req.route, '/test/:foo/*');
           strictEqual(req.splat, 'bar/baz');
 
           req.on('data', (buffer) => {

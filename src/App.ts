@@ -24,6 +24,7 @@ type RouteHandlerFunction<
 > = (
   req: T1,
   res: T2,
+  route: string,
   params: Request<Path>['params'],
   splat: Request<Path>['splat'],
 ) => Promise<void> | void;
@@ -41,10 +42,12 @@ function make_handler<T1 extends Request<Path>, T2 extends Response, Path>(
   return function handler(
     req: T1,
     res: T2,
+    route: string,
     params: Request<Path>['params'],
     splat: Request<Path>['splat'],
   ) {
     req.params = params;
+    req.route = route;
     req.splat = splat;
     return callback(req, res);
   };
@@ -78,7 +81,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
         const r = route.get(url);
 
         if (r.handler) {
-          r.handler(req, res, r.params, r.splat);
+          r.handler(req, res, r.src, r.params, r.splat);
         } else {
           return_404(res);
         }

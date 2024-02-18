@@ -3,6 +3,7 @@ import type { IncomingMessage, ServerResponse } from 'http';
 export type Request<Path = string> = IncomingMessage & {
   method: string;
   params: RequestParams<Path>;
+  route: string;
   splat: string | null;
 };
 

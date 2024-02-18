@@ -54,12 +54,15 @@ import { App, middleware } from '@borisovg/expressus';
 import type { JsonRequest, JsonResponse, QueryRequest } from '@borisovg/expressus';
 
 const app = new App<JsonRequest & QueryRequest, JsonResponse>();
+const server = createServer(app.router);
+
+server.listen(8080);
 
 app.use(middleware.json());
 app.use(middleware.query());
 
-app.get('/foo', function (req, res) {
-    // req.body, req.query and res.json will be typed
+app.get('/foo/:bar', function (req, res) {
+    // req.body, req.params.bar, req.query and res.json will be typed
 });
 ```
 
@@ -80,7 +83,8 @@ app.get('/foo', function (req, res) {
 
 - route "/foo" will match request path "/foo"
 - route "/foo/:name" will match request path like "/foo/bar" and set `req.params.name` to "bar"
-- route "/foo/:name/\*" will match request path like "/foo/bar/anything/else", will set `req.params.name` to "bar" and set `req.splat` to "anything/else".
+- route "/foo/:name/\*" will match request path like "/foo/bar/anything/else", will set `req.params.name` to "bar" and set `req.splat` to "anything/else"
+- raw route string is used as `req.route`
 
 Refer to the [http-hash package](https://github.com/Matt-Esch/http-hash) for more information.
 
