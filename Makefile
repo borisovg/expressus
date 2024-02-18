@@ -5,12 +5,12 @@ all: help
 build: node_modules
 	./node_modules/.bin/tsc || (rm -rf dist; exit 1)
 
-## clean: delete NPM packages and generated files
+## clean:  delete NPM packages and generated files
 .PHONY: clean
 clean:
 	rm -rf dist node_modules package-lock.json npm-debug.log .nyc* coverage
 
-## test:  run tests
+## test:   run tests
 .PHONY: test
 test: node_modules build
 	./node_modules/.bin/c8 \

@@ -3,6 +3,7 @@
   "version": "3.4.0",
   "description": "A small, fast, Express-like Node.js web framework.",
   "scripts": {
+    "prepublishOnly": "make build",
     "test": "make test"
   },
   "repository": {
