@@ -17,7 +17,12 @@ export type { FormRequest } from './lib/form-middleware';
 export { get_body } from './lib/get-body';
 export type { JsonRequest, JsonResponse } from './lib/json-middleware';
 export type { QueryRequest } from './lib/query-middleware';
-export type { Request, Response } from './types';
+export type {
+  HandlerFunction,
+  MiddlewareFunction,
+  Request,
+  Response,
+} from './types';
 
 export const middleware = {
   body: () => body_middleware,

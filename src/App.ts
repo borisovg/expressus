@@ -5,18 +5,14 @@
  */
 
 import { IncomingMessage, STATUS_CODES, ServerResponse } from 'http';
-import type { Request, Response } from './types';
+import type {
+  HandlerFunction,
+  MiddlewareFunction,
+  Request,
+  Response,
+} from './types';
 import httpHash = require('http-hash');
 
-type MiddlewareFunction<T1 extends Request, T2 extends Response> = (
-  req: T1,
-  Response: T2,
-  next: () => void
-) => Promise<void> | void;
-type HandlerFunction<T1 extends Request<Path>, T2 extends Response, Path> = (
-  req: T1,
-  res: T2
-) => Promise<void> | void;
 type RouteHandlerFunction<
   T1 extends Request<Path>,
   T2 extends Response,
