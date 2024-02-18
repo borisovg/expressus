@@ -129,4 +129,33 @@ describe('lib/App.js', () => {
       });
     });
   });
+
+  it('correctly strips hashes and queries', (done) => {
+    const paths = [
+      '/foo/bar?abc=123',
+      '/foo/bar#baz',
+      '/foo/bar?abc=123#baz',
+      '/foo/bar#baz?abc=123',
+    ];
+
+    (function loop(i) {
+      app.remove_all_handlers();
+      app.remove_middleware();
+
+      const route = '/foo/:bar';
+      const path = paths[i];
+      if (!path) return done();
+
+      app.get(route, (req, res) => {
+        strictEqual(req.route, route);
+        strictEqual(req.url, path);
+        res.end();
+      });
+
+      httpRequest({ method: 'GET', path }, undefined, (res) => {
+        strictEqual(res.statusCode, 200);
+        loop(i + 1);
+      });
+    })(0);
+  });
 });

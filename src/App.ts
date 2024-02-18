@@ -13,18 +13,6 @@ import type {
 } from './types';
 import httpHash = require('http-hash');
 
-type RouteHandlerFunction<
-  T1 extends Request<Path>,
-  T2 extends Response,
-  Path,
-> = (
-  req: T1,
-  res: T2,
-  route: string,
-  params: Request<Path>['params'],
-  splat: Request<Path>['splat'],
-) => Promise<void> | void;
-
 type Methods = 'DELETE' | 'GET' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT';
 
 function return_404(res: ServerResponse) {
@@ -32,28 +20,11 @@ function return_404(res: ServerResponse) {
   res.end(`404 ${STATUS_CODES[404]}`);
 }
 
-function make_handler<T1 extends Request<Path>, T2 extends Response, Path>(
-  callback: HandlerFunction<T1, T2, Path>,
-): RouteHandlerFunction<T1, T2, Path> {
-  return function handler(
-    req: T1,
-    res: T2,
-    route: string,
-    params: Request<Path>['params'],
-    splat: Request<Path>['splat'],
-  ) {
-    req.params = params;
-    req.route = route;
-    req.splat = splat;
-    return callback(req, res);
-  };
-}
-
 export class App<ReqMiddleware = {}, ResMiddleware = {}> {
   private middlewares: MiddlewareFunction<any, any>[];
   private routes: Record<
     Methods,
-    ReturnType<typeof httpHash<RouteHandlerFunction<any, any, any>>>
+    ReturnType<typeof httpHash<HandlerFunction<any, any, any>>>
   >;
   public router: (req: IncomingMessage, res: ServerResponse) => void;
 
@@ -68,38 +39,28 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
       PUT: httpHash(),
     };
 
-    const route_request = (req: IncomingMessage, res: ServerResponse) => {
-      const method = req.method as Methods;
-      const url = req.url as string;
-      const route = this.routes[method];
-
-      if (route) {
-        const r = route.get(url);
-
-        if (r.handler) {
-          r.handler(req, res, r.src, r.params, r.splat);
-        } else {
-          return_404(res);
-        }
-      } else {
-        return_404(res);
-      }
-    };
-
     this.router = (req: IncomingMessage, res: ServerResponse) => {
-      if (!this.middlewares.length) {
-        return route_request(req, res);
-      }
+      const method = req.method as Methods;
 
       const loop = (i: number) => {
         const mw = this.middlewares[i];
 
         if (mw) {
-          mw(req, res, function () {
+          return mw(req, res, function () {
             loop(i + 1);
           });
+        }
+
+        const url = (req.url as string).split(/[#?]/).shift() as string;
+        const route = this.routes[method]?.get(url);
+
+        if (route?.handler) {
+          (req as Request).params = route.params;
+          (req as Request).route = route.src;
+          (req as Request).splat = route.splat;
+          route.handler(req, res);
         } else {
-          route_request(req, res);
+          return_404(res);
         }
       };
 
@@ -112,7 +73,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.DELETE.set(path, make_handler(handler));
+    this.routes.DELETE.set(path, handler);
   }
 
   get<
@@ -120,7 +81,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.GET.set(path, make_handler(handler));
+    this.routes.GET.set(path, handler);
   }
 
   options<
@@ -128,7 +89,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.OPTIONS.set(path, make_handler(handler));
+    this.routes.OPTIONS.set(path, handler);
   }
 
   patch<
@@ -136,7 +97,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.PATCH.set(path, make_handler(handler));
+    this.routes.PATCH.set(path, handler);
   }
 
   post<
@@ -144,7 +105,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.POST.set(path, make_handler(handler));
+    this.routes.POST.set(path, handler);
   }
 
   put<
@@ -152,7 +113,7 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     T2 extends Response & ResMiddleware,
     Path extends string,
   >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.PUT.set(path, make_handler(handler));
+    this.routes.PUT.set(path, handler);
   }
 
   remove_all_handlers() {
