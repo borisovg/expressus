@@ -5,7 +5,7 @@ export default defineConfig({
     fileParallelism: false,
     coverage: {
       provider: "v8",
-      reporter: ["text"],
+      reporter: ["lcov", "text"],
       include: ["src/**/*.ts"],
       exclude: ["src/**/*.spec.ts", "src/types.*"],
     },

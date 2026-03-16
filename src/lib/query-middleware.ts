@@ -7,7 +7,7 @@
  * @license Apache-2.0
  */
 
-import { URL } from "url";
+import { URL } from "node:url";
 import type { Request, Response } from "../types";
 
 export type RequestWithQuery<Path = string> = Request<Path> & QueryRequest;

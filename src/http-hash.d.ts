@@ -8,7 +8,7 @@ declare module "http-hash" {
       }
     | {
         handler: null;
-        params: {};
+        params: object;
         splat: null;
         src: null;
       };

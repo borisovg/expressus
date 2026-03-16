@@ -6,7 +6,7 @@
  * @license Apache-2.0
  */
 
-import { STATUS_CODES } from "http";
+import { STATUS_CODES } from "node:http";
 import type { Request, Response } from "../types";
 import { get_body } from "./get-body";
 
