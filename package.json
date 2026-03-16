@@ -3,8 +3,10 @@
   "version": "3.4.2",
   "description": "A small, fast, Express-like Node.js web framework.",
   "scripts": {
-    "prepublishOnly": "make build",
-    "test": "make test"
+    "lint": "make lint",
+    "prepublishOnly": "make",
+    "test": "make test",
+    "test:watch": "make test-watch"
   },
   "repository": {
     "type": "git",
@@ -14,31 +16,28 @@
     "name": "George Borisov",
     "url": "https://github.com/borisovg"
   },
-  "license": "LGPL-3.0",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/borisovg/expressus/issues"
   },
   "homepage": "https://github.com/borisovg/expressus#readme",
   "dependencies": {
     "http-hash": "2.0.1",
-    "mime-types": "2.1.35",
+    "mime-types": "3.0.2",
     "tslib": "^2"
   },
   "engines": {
     "node": ">=12"
   },
   "devDependencies": {
-    "@types/mime-types": "^2",
-    "@types/mocha": "^10",
-    "@types/node": "^20",
-    "@types/sinon": "^17",
-    "c8": "^9",
-    "eslint": "^8",
-    "mocha": "^10",
-    "prettier": "^3",
-    "sinon": "^17",
-    "ts-mocha": "^10",
-    "typescript": "^5"
+    "@biomejs/biome": "^2",
+    "@types/mime-types": "^3",
+    "@types/node": "^24",
+    "@vitest/coverage-v8": "^4",
+    "memfs": "^4.56.11",
+    "tsx": "^4",
+    "typescript": "^5",
+    "vitest": "^4"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

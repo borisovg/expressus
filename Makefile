@@ -1,37 +1,58 @@
-all: help
+NPM := pnpm
+NPM_LOCK := pnpm-lock.yaml
+TS_FILES := $(shell find src/ -name '*.ts')
+NPM_BIN := ./node_modules/.bin
 
-## build:  build TypeScript source
-.PHONY: build
-build: node_modules
-	./node_modules/.bin/tsc || (rm -rf dist; exit 1)
+all: dist
 
-## clean:  delete NPM packages and generated files
-.PHONY: clean
-clean:
-	rm -rf dist node_modules package-lock.json npm-debug.log .nyc* coverage
-
-## test:   run tests
-.PHONY: test
-test: node_modules build
-	./node_modules/.bin/c8 \
-		--reporter=none \
-		./node_modules/.bin/ts-mocha -b 'src/**/*.spec.ts' \
-			&& ./node_modules/.bin/c8 report \
-				--all \
-				--bail \
-				--clean \
-				--reporter=html \
-				--reporter=lcov \
-				--reporter=text \
-				-n src \
-				-x 'src/**/*.spec.ts' \
-				-x 'src/http-hash.d.ts' \
-				-x 'src/types.*'
-
+## help:		show this help
 .PHONY: help
 help:
-	@sed -n 's/^##//p' Makefile
+	@sed -n 's/^##//p' Makefile | sort
 
-node_modules: package.json
-	npm update || (rm -rf node_modules; exit 1)
-	touch node_modules
+## clean: 	delete generated files
+.PHONY: clean
+clean:
+	rm -rf coverage dist node_modules $(NPM_LOCK)
+
+## ci: 		run tests and remove dev dependencies
+.PHONY: ci
+ci: test dist
+	$(NPM) prune --prod
+	rm $(NPM_LOCK)
+
+dist: node_modules $(TS_FILES) tsconfig.json Makefile
+	rm -rf $@
+	$(NPM_BIN)/tsc -p tsconfig-build.json || rm -rf $@
+
+## lint:		run linter checks
+.PHONY: lint
+lint: node_modules
+	$(NPM_BIN)/biome check --write --error-on-warnings
+
+node_modules: package.json $(NPM_LOCK)
+	$(NPM) install || (rm -rf $@; exit 1)
+	test -d $@ && touch $@ || true
+
+## start-dev:	start application in development mode
+.PHONY: start-dev
+start-dev: node_modules
+	while true; do LOG_LEVEL=debug $(NPM_BIN)/tsx watch ./src/index.ts; sleep 1; done
+
+## test:		run unit tests (set FILE env variable to run test for that file only)
+.PHONY: test
+ifdef FILE
+test: node_modules
+	$(NPM_BIN)/vitest $(FILE)
+else
+test: node_modules
+	$(NPM_BIN)/vitest --coverage --run --coverage.exclude="src/*.d.ts"
+endif
+
+## test-watch:	run unit tests in watch mode
+.PHONY: test-watch
+test-watch: node_modules
+	$(NPM_BIN)/vitest
+
+$(NPM_LOCK):
+	$(NPM) install && touch $@
