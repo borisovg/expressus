@@ -3,12 +3,12 @@
  * It also binds a `res.json()` convenience method to send JSON response to the client.
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../types';
-import { get_body } from './get-body';
+import { STATUS_CODES } from "http";
+import type { Request, Response } from "../types";
+import { get_body } from "./get-body";
 
 export type RequestWithForm<Path = string> = Request<Path> & FormRequest;
 
@@ -16,7 +16,7 @@ export type FormRequest = {
   body?: Record<string, string>;
 };
 
-const formType = 'application/x-www-form-urlencoded';
+const formType = "application/x-www-form-urlencoded";
 
 function form_middleware(
   req: RequestWithForm,
@@ -26,12 +26,12 @@ function form_middleware(
   const { method } = req;
 
   if (
-    method === 'GET' ||
-    method === 'DELETE' ||
-    method === 'HEAD' ||
-    method === 'OPTIONS' ||
-    method === 'TRACE' ||
-    req.headers['content-type'] !== formType
+    method === "GET" ||
+    method === "DELETE" ||
+    method === "HEAD" ||
+    method === "OPTIONS" ||
+    method === "TRACE" ||
+    req.headers["content-type"] !== formType
   ) {
     return next();
   }
@@ -42,13 +42,13 @@ function form_middleware(
         return next();
       }
 
-      const list = body.toString().split('&');
+      const list = body.toString().split("&");
 
       req.body = {};
 
       for (let i = 0; i < list.length; i += 1) {
         const param = list[i] as string;
-        const a = param.split('=') as [string, string];
+        const a = param.split("=") as [string, string];
 
         if (a.length !== 2) {
           throw new Error();
@@ -60,7 +60,7 @@ function form_middleware(
       next();
     })
     .catch((_err) => {
-      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
       res.end(Buffer.from(`400 ${STATUS_CODES[400]}`));
     });
 }

@@ -4,11 +4,11 @@
  * Original request URL is preserved at `req.originalUrl`.
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { URL } from 'url';
-import type { Request, Response } from '../types';
+import { URL } from "url";
+import type { Request, Response } from "../types";
 
 export type RequestWithQuery<Path = string> = Request<Path> & QueryRequest;
 
@@ -23,7 +23,7 @@ export function query_middleware(
   _res: Response,
   next: () => void,
 ) {
-  const u = new URL(req.url || '', `http://${req.headers.host}`);
+  const u = new URL(req.url || "", `http://${req.headers.host}`);
 
   req.originalUrl = req.url;
   req.url = u.pathname;

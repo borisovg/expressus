@@ -4,12 +4,12 @@
  * It also binds a `res.json()` convenience method to send JSON response to the client.
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../types';
-import { get_body } from './get-body';
+import { STATUS_CODES } from "http";
+import type { Request, Response } from "../types";
+import { get_body } from "./get-body";
 
 export type RequestWithJson<Path = string> = Request<Path> & JsonRequest;
 
@@ -23,7 +23,7 @@ export type JsonResponse = {
   json: (data: unknown) => void;
 };
 
-const jsonType = 'application/json';
+const jsonType = "application/json";
 
 export function json_middleware(
   req: RequestWithJson,
@@ -31,19 +31,19 @@ export function json_middleware(
   next: () => void,
 ) {
   res.json = (data) => {
-    res.setHeader('Content-Type', jsonType);
+    res.setHeader("Content-Type", jsonType);
     res.end(JSON.stringify(data));
   };
 
   const { method } = req;
 
   if (
-    method === 'GET' ||
-    method === 'DELETE' ||
-    method === 'HEAD' ||
-    method === 'OPTIONS' ||
-    method === 'TRACE' ||
-    !req.headers['content-type']?.includes(jsonType)
+    method === "GET" ||
+    method === "DELETE" ||
+    method === "HEAD" ||
+    method === "OPTIONS" ||
+    method === "TRACE" ||
+    !req.headers["content-type"]?.includes(jsonType)
   ) {
     return next();
   }
@@ -54,7 +54,7 @@ export function json_middleware(
         req.body = JSON.parse(body.toString());
       } else if (
         req.body &&
-        (typeof req.body === 'string' || Buffer.isBuffer(req.body))
+        (typeof req.body === "string" || Buffer.isBuffer(req.body))
       ) {
         req.body = JSON.parse(req.body.toString());
       }

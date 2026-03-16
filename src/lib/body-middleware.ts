@@ -2,12 +2,12 @@
  * Middleware to load request body, which then is attached to `req.body` as a buffer.
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { STATUS_CODES } from 'http';
-import type { Request, Response } from '../types';
-import { get_body } from './get-body';
+import { STATUS_CODES } from "node:http";
+import type { Request, Response } from "../types";
+import { get_body } from "./get-body";
 
 export type RequestWithBody<Path = string> = Request<Path> & BodyRequest;
 
@@ -22,19 +22,19 @@ export function body_middleware(
 ) {
   const { method } = req;
 
-  if (
-    method === 'GET' ||
-    method === 'DELETE' ||
-    method === 'HEAD' ||
-    method === 'OPTIONS' ||
-    method === 'TRACE'
-  ) {
-    return next();
-  }
-
   get_body(req)
     .then((body) => {
-      if (body.length) {
+      if (
+        body.length &&
+        // consume the body to avoid "socket hang up" error
+        !(
+          method === "GET" ||
+          method === "DELETE" ||
+          method === "HEAD" ||
+          method === "OPTIONS" ||
+          method === "TRACE"
+        )
+      ) {
         req.body = body;
       }
 

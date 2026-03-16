@@ -1,21 +1,21 @@
-import { gunzip } from 'zlib';
-import type { IncomingMessage } from 'http';
+import type { IncomingMessage } from "node:http";
+import { gunzip } from "node:zlib";
 
 export async function get_body(req: IncomingMessage) {
   if (req.readableEnded) {
-    return Buffer.from('');
+    return Buffer.from("");
   }
 
   return new Promise<Buffer>((resolve, reject) => {
     const chunks: Buffer[] = [];
 
-    req.on('data', function (buf) {
+    req.on("data", (buf) => {
       chunks.push(buf);
     });
 
-    req.on('end', () => {
+    req.on("end", () => {
       const body = Buffer.concat(chunks);
-      if (req.headers['content-encoding'] === 'gzip') {
+      if (req.headers["content-encoding"] === "gzip") {
         gunzip(body, (err, data) => {
           if (err) {
             reject(err);
@@ -28,7 +28,7 @@ export async function get_body(req: IncomingMessage) {
       }
     });
 
-    req.on('error', (err) => {
+    req.on("error", (err) => {
       reject(err);
     });
   });

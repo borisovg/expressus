@@ -2,14 +2,14 @@
  * Middleware to serve static files.
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { STATUS_CODES } from 'http';
-import * as fs from 'fs';
-import * as mime from 'mime-types';
-import * as path from 'path';
-import type { Request, Response } from '../types';
+import { access, constants, createReadStream, stat } from "node:fs";
+import { STATUS_CODES } from "node:http";
+import * as path from "node:path";
+import { contentType } from "mime-types";
+import type { Request, Response } from "../types";
 
 const re1 = new RegExp(/\.[A-Za-z0-9]+$/);
 const re2 = new RegExp(/\.\./);
@@ -18,9 +18,9 @@ type StaticMiddlewareOptions = {
   path?: string;
 };
 
-function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
-  opts.path = opts.path || './public';
-
+function make_static_middleware({
+  path: dirPath = "./public",
+}: StaticMiddlewareOptions = {}) {
   function ok(
     err: NodeJS.ErrnoException | null,
     res: Response,
@@ -28,10 +28,10 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
   ) {
     if (!err) {
       return true;
-    } else if (err.code === 'ENOENT') {
+    } else if (err.code === "ENOENT") {
       next();
     } else {
-      res.writeHead(500, { 'Content-Type': 'text/plain; charset=UTF-8' });
+      res.writeHead(500, { "Content-Type": "text/plain; charset=UTF-8" });
       res.end(`500 ${STATUS_CODES[500]}\n\n${err.message}`);
     }
 
@@ -43,30 +43,30 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
     res: Response,
     next: () => void,
   ) {
-    const url = req.url || '/';
+    const url = req.url || "/";
 
-    if (req.method !== 'GET' || !url.match(re1) || url.match(re2)) {
+    if (req.method !== "GET" || !url.match(re1) || url.match(re2)) {
       return next();
     }
 
-    const file = opts.path + url;
+    const file = dirPath + url;
 
-    fs.access(file, fs.constants.R_OK, (err: NodeJS.ErrnoException | null) => {
+    access(file, constants.R_OK, (err: NodeJS.ErrnoException | null) => {
       if (!ok(err, res, next)) {
         return;
       }
 
-      fs.stat(file, (err: NodeJS.ErrnoException | null, stat) => {
+      stat(file, (err: NodeJS.ErrnoException | null, stat) => {
         if (!ok(err, res, next)) {
           return;
         }
 
-        const stream = fs.createReadStream(file);
-        const type = mime.contentType(path.extname(file));
+        const stream = createReadStream(file);
+        const type = contentType(path.extname(file));
 
         res.writeHead(200, {
-          'Content-Type': type || 'application/octet-stream',
-          'Content-Length': stat.size,
+          "Content-Type": type || "application/octet-stream",
+          "Content-Length": stat.size,
         });
 
         stream.pipe(res);
@@ -75,4 +75,4 @@ function make_static_middleware(opts: StaticMiddlewareOptions = {}) {
   };
 }
 
-export { make_static_middleware, StaticMiddlewareOptions };
+export { make_static_middleware, type StaticMiddlewareOptions };

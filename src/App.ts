@@ -1,52 +1,73 @@
 /**
  * @author George Borisov <git@gir.me.uk>
  * @copyright George Borisov 2018
- * @license LGPL-3.0
+ * @license Apache-2.0
  */
 
-import { IncomingMessage, STATUS_CODES, ServerResponse } from 'http';
+import {
+  type IncomingMessage,
+  type ServerResponse,
+  STATUS_CODES,
+} from "node:http";
 import type {
   HandlerFunction,
   MiddlewareFunction,
   Request,
   Response,
-} from './types';
-import httpHash = require('http-hash');
+} from "./types";
 
-type Methods = 'DELETE' | 'GET' | 'OPTIONS' | 'PATCH' | 'POST' | 'PUT';
+import httpHash = require("http-hash");
+
+type Methods = "DELETE" | "GET" | "OPTIONS" | "PATCH" | "POST" | "PUT";
+type AppRequest<ReqMiddleware extends object> = Request<string> & ReqMiddleware;
+type AppResponse<ResMiddleware extends object> = Response & ResMiddleware;
+type InternalHandler<
+  ReqMiddleware extends object,
+  ResMiddleware extends object,
+> = HandlerFunction<
+  AppRequest<ReqMiddleware>,
+  AppResponse<ResMiddleware>,
+  string
+>;
+type InternalMiddleware = MiddlewareFunction<Request, Response>;
 
 function return_404(res: ServerResponse) {
-  res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+  res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });
   res.end(`404 ${STATUS_CODES[404]}`);
 }
 
-export class App<ReqMiddleware = {}, ResMiddleware = {}> {
-  private middlewares: MiddlewareFunction<any, any>[];
+export class App<
+  ReqMiddleware extends object = object,
+  ResMiddleware extends object = object,
+> {
+  private middlewares: InternalMiddleware[];
   private routes: Record<
     Methods,
-    ReturnType<typeof httpHash<HandlerFunction<any, any, any>>>
+    ReturnType<typeof httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>>
   >;
   public router: (req: IncomingMessage, res: ServerResponse) => void;
 
   constructor() {
     this.middlewares = [];
     this.routes = {
-      DELETE: httpHash(),
-      GET: httpHash(),
-      OPTIONS: httpHash(),
-      PATCH: httpHash(),
-      POST: httpHash(),
-      PUT: httpHash(),
+      DELETE: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
+      GET: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
+      OPTIONS: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
+      PATCH: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
+      POST: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
+      PUT: httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>(),
     };
 
     this.router = (req: IncomingMessage, res: ServerResponse) => {
       const method = req.method as Methods;
 
       const loop = (i: number) => {
+        const req2 = req as AppRequest<ReqMiddleware>;
+        const res2 = res as AppResponse<ResMiddleware>;
         const mw = this.middlewares[i];
 
         if (mw) {
-          return mw(req, res, function () {
+          return mw(req2, res2, () => {
             loop(i + 1);
           });
         }
@@ -55,10 +76,10 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
         const route = this.routes[method]?.get(url);
 
         if (route?.handler) {
-          (req as Request).params = route.params;
-          (req as Request).route = route.src;
-          (req as Request).splat = route.splat;
-          route.handler(req, res);
+          req2.params = route.params;
+          req2.route = route.src;
+          req2.splat = route.splat;
+          route.handler(req2, res2);
         } else {
           return_404(res);
         }
@@ -68,61 +89,95 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     };
   }
 
-  delete<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.DELETE.set(path, handler);
+  private register<Path extends string>(
+    method: Methods,
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.routes[method].set(
+      path,
+      handler as InternalHandler<ReqMiddleware, ResMiddleware>,
+    );
   }
 
-  get<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.GET.set(path, handler);
+  delete<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("DELETE", path, handler);
   }
 
-  options<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.OPTIONS.set(path, handler);
+  get<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("GET", path, handler);
   }
 
-  patch<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.PATCH.set(path, handler);
+  options<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("OPTIONS", path, handler);
   }
 
-  post<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.POST.set(path, handler);
+  patch<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("PATCH", path, handler);
   }
 
-  put<
-    T1 extends Request<Path> & ReqMiddleware,
-    T2 extends Response & ResMiddleware,
-    Path extends string,
-  >(path: Path, handler: HandlerFunction<T1, T2, Path>) {
-    this.routes.PUT.set(path, handler);
+  post<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("POST", path, handler);
+  }
+
+  put<Path extends string>(
+    path: Path,
+    handler: HandlerFunction<
+      Request<Path> & ReqMiddleware,
+      Response & ResMiddleware,
+      Path
+    >,
+  ) {
+    this.register("PUT", path, handler);
   }
 
   remove_all_handlers() {
-    Object.keys(this.routes).forEach((method) => {
-      this.routes[method as Methods] = httpHash();
-    });
+    for (const method of Object.keys(this.routes)) {
+      this.routes[method as Methods] =
+        httpHash<InternalHandler<ReqMiddleware, ResMiddleware>>();
+    }
   }
 
-  remove_middleware(fn?: MiddlewareFunction<any, any>) {
+  remove_middleware(fn?: InternalMiddleware) {
     if (fn) {
       const idx = this.middlewares.indexOf(fn);
 
@@ -134,7 +189,9 @@ export class App<ReqMiddleware = {}, ResMiddleware = {}> {
     }
   }
 
-  use<T1 extends Request, T2 extends Response>(fn: MiddlewareFunction<T1, T2>) {
-    this.middlewares.push(fn);
+  use<TReq extends Request = Request, TRes extends Response = Response>(
+    fn: MiddlewareFunction<TReq, TRes>,
+  ) {
+    this.middlewares.push(fn as InternalMiddleware);
   }
 }

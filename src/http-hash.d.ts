@@ -1,4 +1,4 @@
-declare module 'http-hash' {
+declare module "http-hash" {
   type Route<Handler, Path> =
     | {
         handler: Handler;

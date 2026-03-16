@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 export type HandlerFunction<
   T1 extends Request<Path>,
@@ -8,7 +8,7 @@ export type HandlerFunction<
 
 export type MiddlewareFunction<
   T1 extends Request = Request,
-  T2 extends Response = Response,
+  T2 extends ServerResponse = ServerResponse,
 > = (req: T1, Response: T2, next: () => void) => Promise<void> | void;
 
 export type Request<Path = string> = IncomingMessage & {
