@@ -103,6 +103,24 @@ This middleware will load the request body and attach it to `req.body` as a buff
 app.use(middleware.body());
 ```
 
+### CORS
+
+This middleware will set the CORS headers on the response.
+
+```
+app.use(middleware.cors());
+```
+
+It supports the following options:
+
+- `allowOrigin` - The value for the `Access-Control-Allow-Origin` header. Defaults to `*`.
+- `allowMethods` - The value for the `Access-Control-Allow-Methods` header. Defaults to `["GET", "POST", "PUT", "DELETE", "OPTIONS"]`.
+- `allowHeaders` - The value for the `Access-Control-Allow-Headers` header. Defaults to `["Content-Type", "Authorization"]`.
+- `allowCredentials` - The value for the `Access-Control-Allow-Credentials` header. Defaults to `false`.
+- `maxAge` - The value for the `Access-Control-Max-Age` header. Defaults to `86400`.
+- `varyOrigin` - Whether to set the `Vary` header. Defaults to `false`.
+
+
 ### Request Body Form Parser
 
 This middleware will parse `req.body` form data and replace `req.body` with the result.
