@@ -1,3 +1,4 @@
+.github
 .vscode
 __mocks__
 biome.json
@@ -5,6 +6,7 @@ coverage
 dist/**/*.spec.*
 Makefile
 pnpm-workspace.yaml
+renovate.json
 src
 tsconfig*.json
 vitest.config.ts
