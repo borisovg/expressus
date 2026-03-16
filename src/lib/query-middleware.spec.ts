@@ -2,60 +2,63 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { deepStrictEqual, strictEqual } from 'assert';
-import { createServer } from 'http';
-import type { Server } from 'http';
-import { makeClient } from '../test-helpers/http-client';
-import { App, middleware } from '..';
-import type { QueryRequest, Response } from '..';
-import type { RequestWithQuery } from './query-middleware';
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import type { QueryRequest, Response } from "..";
+import { App, middleware } from "..";
+import { makeAsyncClient } from "../test-helpers/http-client";
+import { createHttpServer, type TestServer } from "../test-helpers/http-server";
+import type { RequestWithQuery } from "./query-middleware";
 
-describe('lib/query-middleware', () => {
+describe("lib/query-middleware", () => {
   const app = new App<QueryRequest>();
-  const path = '/test?foo=foofoo';
-  const port = 10001;
-  const httpRequest = makeClient(port);
+  const path = "/test?foo=foofoo";
+  const port = 10002;
+  const httpRequest = makeAsyncClient(port);
   let r: QueryRequest;
-  let server: Server;
+  let server: TestServer;
 
-  before((done) => {
-    server = createServer(app.router);
-    server.listen(port, done);
+  beforeAll(async () => {
+    server = createHttpServer(app);
+    await server.listen(port);
   });
 
-  after((done) => server.close(done));
+  afterAll(async () => {
+    await server.close();
+  });
 
-  it('register middleware', () => {
+  it("register middleware", () => {
     app.use(middleware.query());
   });
 
-  it('creates req.query object', (done) => {
-    app.get('/test', (req, res) => {
+  it("creates req.query object", async () => {
+    app.get("/test", (req, res) => {
       r = req;
-      res.end();
-      strictEqual(req.query.foo, 'foofoo');
-      done();
+      expect(req.query.foo).toBe("foofoo");
+      res.end("ok");
     });
 
-    httpRequest({ method: 'GET', path });
+    const { data } = await httpRequest({ method: "GET", path });
+    expect(data).toBe("ok");
   });
 
-  it('trims req.url down to path', () => {
-    strictEqual(r.url, '/test');
+  it("trims req.url down to path", () => {
+    expect(r.url).toBe("/test");
   });
 
-  it('adds req.originalUrl property with original request URL', () => {
-    strictEqual(r.originalUrl, path);
+  it("adds req.originalUrl property with original request URL", () => {
+    expect(r.originalUrl).toBe(path);
   });
 
-  it('handles edge case where URL is undefined on the request', (done) => {
-    const req = { headers: { host: 'example.com' } } as RequestWithQuery;
+  it("handles edge case where URL is undefined on the request", async () => {
+    const req = { headers: { host: "example.com" } } as RequestWithQuery;
 
-    middleware.query()(req, {} as Response, () => {
-      deepStrictEqual(req.query, {});
-      strictEqual(req.originalUrl, undefined);
-      strictEqual(req.url, '/');
-      done();
+    await new Promise<void>((resolve) => {
+      middleware.query()(req, {} as Response, () => {
+        expect(req.query).toEqual({});
+        expect(req.originalUrl).toBeUndefined();
+        expect(req.url).toBe("/");
+        resolve();
+      });
     });
   });
 });

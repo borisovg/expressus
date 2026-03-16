@@ -2,24 +2,24 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { rejects, strictEqual } from 'assert';
-import { gzip } from 'zlib';
-import { Readable } from 'stream';
-import { get_body } from '..';
-import type { Request } from '../types';
+import { Readable } from "node:stream";
+import { gzip } from "node:zlib";
+import { describe, expect, it } from "vitest";
+import { get_body } from "..";
+import type { Request } from "../types";
 
-describe('lib/get-body', () => {
-  it('throws an error if stream emits error', async () => {
+describe("lib/get-body", () => {
+  it("throws an error if stream emits error", async () => {
     const req = new Readable({ read() {} }) as Request;
-    setImmediate(() => req.emit('error', new Error('test')));
-    await rejects(() => get_body(req), { message: 'test' });
+    setImmediate(() => req.emit("error", new Error("test")));
+    await expect(get_body(req)).rejects.toThrow("test");
   });
 
-  it('supports gzip encoded data', async () => {
+  it("supports gzip encoded data", async () => {
     const req = new Readable({
       read() {
-        gzip(Buffer.from('foo'), (err, data) => {
-          strictEqual(err, null);
+        gzip(Buffer.from("foo"), (err, data) => {
+          expect(err).toBeNull();
           this.push(data);
           this.push(null);
         });
@@ -27,32 +27,32 @@ describe('lib/get-body', () => {
     }) as Request;
 
     req.headers = {
-      'content-encoding': 'gzip',
+      "content-encoding": "gzip",
     };
 
     const data = await get_body(req);
-    strictEqual(data.toString(), 'foo');
+    expect(data.toString()).toBe("foo");
   });
 
-  it('throws an error if gzip decoding fails', async () => {
+  it("throws an error if gzip decoding fails", async () => {
     const req = new Readable({
       read() {
-        this.push(Buffer.from('foo'));
+        this.push(Buffer.from("foo"));
         this.push(null);
       },
     }) as Request;
 
     req.headers = {
-      'content-encoding': 'gzip',
+      "content-encoding": "gzip",
     };
 
-    rejects(get_body(req), { message: 'Error: incorrect header check' });
+    await expect(get_body(req)).rejects.toThrow("incorrect header check");
   });
 
-  it('is idempotent', async () => {
+  it("is idempotent", async () => {
     const req = new Readable({
       read() {
-        this.push(Buffer.from('foo'));
+        this.push(Buffer.from("foo"));
         this.push(null);
       },
     }) as Request;
@@ -60,9 +60,9 @@ describe('lib/get-body', () => {
     req.headers = {};
 
     let data = await get_body(req);
-    strictEqual(data.toString(), 'foo');
+    expect(data.toString()).toBe("foo");
 
     data = await get_body(req);
-    strictEqual(data.toString(), '');
+    expect(data.toString()).toBe("");
   });
 });

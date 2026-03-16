@@ -2,67 +2,81 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { strictEqual } from 'assert';
-import http from 'http';
-import { makeClient } from './test-helpers/http-client';
-import * as lib from '.';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import { App, type middleware } from ".";
+import { makeAsyncClient } from "./test-helpers/http-client";
+import { createHttpServer, type TestServer } from "./test-helpers/http-server";
 
-type MiddlewareFn = ReturnType<typeof lib.middleware.body>;
+type MiddlewareFn = ReturnType<typeof middleware.body>;
 
-describe('lib/App.js', () => {
-  const port = 10001;
-  const httpRequest = makeClient(port);
-  const path = '/test/foofoo/bar/baz';
-  let app: lib.App;
-  let server: http.Server;
+describe("lib/App.js", () => {
+  const port = 10008;
+  const httpRequest = makeAsyncClient(port);
+  const path = "/test/foofoo/bar/baz";
+  const app = new App();
+  let server: TestServer;
 
-  after((done) => server.close(done));
-
-  it('creates HTTP server when called with no options', () => {
-    app = new lib.App();
+  beforeAll(async () => {
+    server = createHttpServer(app);
+    await server.listen(port);
   });
 
-  it('exposes request handler as app.router', (done) => {
-    strictEqual(typeof app.router, 'function');
-    server = http.createServer(app.router);
-    server.listen(port, done);
+  beforeEach(() => {
+    app.remove_all_handlers();
+    app.remove_middleware();
   });
 
-  (['delete', 'get', 'options', 'patch', 'post', 'put'] as const).forEach(
+  afterAll(async () => {
+    await server.close();
+  });
+
+  it("creates HTTP server when called with no options", () => {
+    expect(app).toBeInstanceOf(App);
+  });
+
+  it("exposes request handler as app.router", () => {
+    expect(app.router).toBeTypeOf("function");
+  });
+
+  (["delete", "get", "options", "patch", "post", "put"] as const).forEach(
     (k) => {
       const m = k.toUpperCase();
 
-      it(`registers ${m} handler`, (done) => {
-        app[k]('/test/:foo/*', (req, res) => {
-          strictEqual(req.method, m);
-          strictEqual(req.url, path);
-          strictEqual(req.params.foo, 'foofoo');
-          strictEqual(req.route, '/test/:foo/*');
-          strictEqual(req.splat, 'bar/baz');
+      it(`registers ${m} handler`, async () => {
+        app[k]("/test/:foo/*", (req, res) => {
+          expect(req.method).toBe(m);
+          expect(req.url).toBe(path);
+          expect(req.params.foo).toBe("foofoo");
+          expect(req.route).toBe("/test/:foo/*");
+          expect(req.splat).toBe("bar/baz");
 
-          req.on('data', (buffer) => {
-            strictEqual(buffer.toString(), 'bar');
+          req.on("data", (buffer) => {
+            expect(buffer.toString()).toBe("bar");
           });
 
-          res.end('foo');
+          req.on("end", () => {
+            res.end("foo");
+          });
         });
 
-        httpRequest({ method: m, path }, 'bar', (res, data) => {
-          strictEqual(res.statusCode, 200);
-          strictEqual(data, 'foo');
-          done();
-        });
+        const hasBody = ["PATCH", "POST", "PUT"].includes(m);
+        const { res, data } = await httpRequest(
+          { method: m, path },
+          hasBody ? "bar" : undefined,
+        );
+        expect(res.statusCode).toBe(200);
+        expect(data).toBe("foo");
       });
     },
   );
 
-  it('registers middleware and applies it to request', (done) => {
+  it("registers middleware and applies it to request", async () => {
     let semaphore = 2;
 
     const mw: MiddlewareFn = (req, res, next) => {
-      strictEqual(req.url, path);
-      strictEqual(typeof res.end, 'function');
-      strictEqual(typeof next, 'function');
+      expect(req.url).toBe(path);
+      expect(res.end).toBeTypeOf("function");
+      expect(next).toBeTypeOf("function");
 
       semaphore -= 1;
       next();
@@ -72,42 +86,44 @@ describe('lib/App.js', () => {
       app.use(mw);
     }
 
-    httpRequest({ method: 'GET', path }, undefined, (res, data) => {
-      strictEqual(res.statusCode, 200);
-      strictEqual(data, 'foo');
-      strictEqual(semaphore, 0);
-
-      app.remove_middleware();
-      done();
+    app.get(path, (_req, res) => {
+      res.end("foo");
     });
+
+    const { res, data } = await httpRequest({ method: "GET", path });
+
+    expect(res.statusCode).toBe(200);
+    expect(data).toBe("foo");
+    expect(semaphore).toBe(0);
   });
 
-  it('returns 404 in strange method', (done) => {
-    httpRequest({ method: 'ACL', path }, undefined, (res, data) => {
-      strictEqual(res.statusCode, 404);
-      strictEqual(typeof data, 'string');
-      done();
-    });
+  it("returns 404 in strange method", async () => {
+    const { res, data } = await httpRequest({ method: "ACL", path });
+    expect(res.statusCode).toBe(404);
+    expect(data).toBeTypeOf("string");
   });
 
-  it('returns 404 in unknown route', (done) => {
-    httpRequest({ method: 'GET', path: '/spanner' }, undefined, (res, data) => {
-      strictEqual(res.statusCode, 404);
-      strictEqual(typeof data, 'string');
-      done();
+  it("returns 404 in unknown route", async () => {
+    const { res, data } = await httpRequest({
+      method: "GET",
+      path: "/spanner",
     });
+    expect(res.statusCode).toBe(404);
+    expect(data).toBeTypeOf("string");
   });
 
-  it('removes all handlers', (done) => {
+  it("removes all handlers", async () => {
+    app.get(path, (_req, res) => {
+      res.end("foo");
+    });
+
     app.remove_all_handlers();
 
-    httpRequest({ method: 'GET', path }, undefined, (res) => {
-      strictEqual(res.statusCode, 404);
-      done();
-    });
+    const { res } = await httpRequest({ method: "GET", path });
+    expect(res.statusCode).toBe(404);
   });
 
-  it('remove_middleware() idempotently removes middleware', (done) => {
+  it("remove_middleware() idempotently removes middleware", async () => {
     let counter = 0;
 
     const mw: MiddlewareFn = (_req, _res, next) => {
@@ -117,45 +133,38 @@ describe('lib/App.js', () => {
 
     app.use(mw);
 
-    httpRequest({ method: 'GET', path }, undefined, () => {
-      strictEqual(counter, 1);
+    await httpRequest({ method: "GET", path });
+    expect(counter).toBe(1);
 
-      app.remove_middleware(mw);
+    app.remove_middleware(mw);
 
-      httpRequest({ method: 'GET', path }, undefined, () => {
-        strictEqual(counter, 1);
-        app.remove_middleware(mw);
-        done();
-      });
-    });
+    await httpRequest({ method: "GET", path });
+    expect(counter).toBe(1);
+    app.remove_middleware(mw);
   });
 
-  it('correctly strips hashes and queries', (done) => {
+  it("correctly strips hashes and queries", async () => {
     const paths = [
-      '/foo/bar?abc=123',
-      '/foo/bar#baz',
-      '/foo/bar?abc=123#baz',
-      '/foo/bar#baz?abc=123',
+      "/foo/bar?abc=123",
+      "/foo/bar#baz",
+      "/foo/bar?abc=123#baz",
+      "/foo/bar#baz?abc=123",
     ];
 
-    (function loop(i) {
+    for (const testPath of paths) {
       app.remove_all_handlers();
       app.remove_middleware();
 
-      const route = '/foo/:bar';
-      const path = paths[i];
-      if (!path) return done();
+      const route = "/foo/:bar";
 
       app.get(route, (req, res) => {
-        strictEqual(req.route, route);
-        strictEqual(req.url, path);
+        expect(req.route).toBe(route);
+        expect(req.url).toBe(testPath);
         res.end();
       });
 
-      httpRequest({ method: 'GET', path }, undefined, (res) => {
-        strictEqual(res.statusCode, 200);
-        loop(i + 1);
-      });
-    })(0);
+      const { res } = await httpRequest({ method: "GET", path: testPath });
+      expect(res.statusCode).toBe(200);
+    }
   });
 });

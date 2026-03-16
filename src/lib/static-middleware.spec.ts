@@ -2,155 +2,174 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { strictEqual } from 'assert';
-import fs from 'fs';
-import { createServer } from 'http';
-import type { Server } from 'http';
-import { createSandbox } from 'sinon';
-import { makeClient } from '../test-helpers/http-client';
-import { App, middleware } from '..';
+// import * as fs from "node:fs/promises";
+import { fs, vol } from "memfs";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+} from "vitest";
+import { App, middleware } from "..";
+import { makeAsyncClient } from "../test-helpers/http-client";
+import { createHttpServer, type TestServer } from "../test-helpers/http-server";
 
-describe('lib/static-middleware.js', () => {
+vi.mock("node:fs");
+vi.mock("node:fs/promises");
+
+describe("lib/static-middleware.js", () => {
   const app = new App();
-  const port = 10001;
-  const httpRequest = makeClient(port);
-  const sandbox = createSandbox();
-  let server: Server;
+  const port = 10007;
+  const httpRequest = makeAsyncClient(port);
+  let server: TestServer;
+  const testDir = "./test/public";
 
-  before((done) => {
-    server = createServer(app.router);
-    server.listen(port, done);
+  beforeAll(async () => {
+    server = createHttpServer(app);
+    await server.listen(port);
   });
 
-  after((done) => server.close(done));
+  beforeEach(() => {
+    fs.mkdirSync(testDir, { recursive: true });
+    app.use(middleware.static({ path: testDir }));
+  });
 
-  afterEach(() => sandbox.restore());
+  afterAll(async () => {
+    await server.close();
+  });
 
-  it('defaults to "./public" for path', (done) => {
+  afterEach(() => {
+    app.remove_all_handlers();
+    app.remove_middleware();
+    vi.restoreAllMocks();
+    vol.reset();
+  });
+
+  it('defaults to "./public" for path', async () => {
+    app.remove_middleware();
     app.use(middleware.static());
 
-    sandbox.replace(fs, 'access', ((path, _mode, callback) => {
-      strictEqual(path, './public/pixel.png');
-      callback(new Error('spanner'));
-      app.remove_middleware();
-      done();
-    }) as typeof fs.access);
+    fs.mkdirSync("./public", { recursive: true });
+    fs.writeFileSync("./public/test.txt", "test");
 
-    httpRequest({ method: 'GET', path: '/pixel.png' });
+    const { res, data } = await httpRequest({
+      method: "GET",
+      path: "/test.txt",
+    });
+    expect(res.statusCode).toBe(200);
+    expect(data).toBe("test");
   });
 
-  it('register middleware with path option', () => {
-    app.use(middleware.static({ path: './src/test-helpers/public' }));
-  });
-
-  it('it serves static files', (done) => {
-    fs.readFile('./src/test-helpers/public/test.txt', (_err, buffer) => {
-      httpRequest(
-        { method: 'GET', path: '/test.txt' },
-        undefined,
-        (res, data) => {
-          strictEqual(res.headers['content-type'], 'text/plain; charset=utf-8');
-          strictEqual(data, buffer.toString());
-
-          fs.readFile('./src/test-helpers/public/pixel.png', (_err, buffer) => {
-            httpRequest(
-              { method: 'GET', path: '/pixel.png' },
-              undefined,
-              (res, data) => {
-                strictEqual(res.headers['content-type'], 'image/png');
-                strictEqual(data, buffer.toString());
-                done();
-              },
-            );
-          });
-        },
-      );
+  (
+    [
+      ["test.txt", "text/plain; charset=utf-8", "test"],
+      [
+        "pixel.png",
+        "image/png",
+        Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=",
+          "base64",
+        ),
+      ],
+    ] as const
+  ).forEach(([file, contentType, expected]) => {
+    it(`serves ${file} with content-type ${contentType}`, async () => {
+      fs.writeFileSync(`${testDir}/${file}`, expected);
+      const { res, data } = await httpRequest({
+        method: "GET",
+        path: `/${file}`,
+      });
+      expect(data).toBe(expected.toString());
+      expect(res.headers["content-type"]).toBe(contentType);
     });
   });
 
-  it('sets "content-type" header to "application/octet-stream" for unknown file types', (done) => {
-    httpRequest({ method: 'GET', path: '/test.xxx' }, undefined, (res) => {
-      strictEqual(res.headers['content-type'], 'application/octet-stream');
-      done();
-    });
+  it('sets "content-type" header to "application/octet-stream" for unknown file types', async () => {
+    const file = "test.xxx";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+    const { res } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(res.headers["content-type"]).toBe("application/octet-stream");
   });
 
-  it('only considers GET requests', (done) => {
-    app.post('/test1.txt', (_req, res) => {
-      res.end();
-      done();
+  it("only considers GET requests", async () => {
+    const file = "test1.txt";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+
+    app.post(`/${file}`, (_req, res) => {
+      res.end("ok");
     });
 
-    httpRequest({ method: 'POST', path: '/test1.txt' });
+    const { data } = await httpRequest({ method: "POST", path: `/${file}` });
+    expect(data).toBe("ok");
   });
 
-  it('ignores routes without extension', (done) => {
-    app.get('/test2', (_req, res) => {
-      res.end();
-      done();
+  it("ignores routes without extension", async () => {
+    const file = "test2";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+
+    app.get(`/${file}`, (_req, res) => {
+      res.end("ok");
     });
 
-    httpRequest({ method: 'GET', path: '/test2' });
+    const { data } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(data).toBe("ok");
   });
 
-  it('ignores routes that include ".." string', (done) => {
-    app.get('/../test3.txt', (_req, res) => {
-      res.end();
-      done();
+  it('ignores routes that include ".." string', async () => {
+    const file = "../test3.txt";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+
+    app.get(`/${file}`, (_req, res) => {
+      res.end("ok");
     });
 
-    httpRequest({ method: 'GET', path: '/../test3.txt' });
+    const { data } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(data).toBe("ok");
   });
 
-  it('continues to dynamic router if file not found', (done) => {
-    app.get('/test4.txt', (_req, res) => {
-      res.end();
-      done();
+  it("continues to dynamic router if file not found", async () => {
+    const file = "test3.txt";
+
+    app.get(`/${file}`, (_req, res) => {
+      res.end("ok");
     });
 
-    httpRequest({ method: 'GET', path: '/test4.txt' });
+    const { data } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(data).toBe("ok");
   });
 
-  it('returns HTTP 500 status on file access error', (done) => {
-    fs.chmod('./src/test-helpers/public/pixel.png', '222', (err) => {
-      strictEqual(err, null);
+  it("returns HTTP 500 status on file access error", async () => {
+    const file = "test.txt";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+    fs.chmodSync(`${testDir}/${file}`, "222");
 
-      httpRequest(
-        { method: 'GET', path: '/pixel.png' },
-        undefined,
-        (res, data) => {
-          strictEqual(res.statusCode, 500);
-          strictEqual(data.match(/(^\d+)/)?.[1], '500');
-
-          fs.chmod('./src/test-helpers/public/pixel.png', '644', (err) => {
-            strictEqual(err, null);
-            done();
-          });
-        },
-      );
-    });
+    const { res } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(res.statusCode).toBe(500);
   });
 
-  it('returns HTTP 500 error on file stat error', (done) => {
-    sandbox.replace(fs, 'stat', ((_path, callback) => {
-      if (typeof callback === 'function')
-        callback(new Error('spanner'), {} as fs.Stats);
+  it("returns HTTP 500 error on file stat error", async () => {
+    const file = "test.txt";
+    fs.writeFileSync(`${testDir}/${file}`, "test");
+
+    vi.spyOn(fs, "stat").mockImplementation(((_path, callback) => {
+      if (typeof callback === "function")
+        callback(new Error("spanner"), {} as InstanceType<typeof fs.Stats>);
     }) as typeof fs.stat);
 
-    httpRequest(
-      { method: 'GET', path: '/pixel.png' },
-      undefined,
-      (res, data) => {
-        strictEqual(res.statusCode, 500);
-        strictEqual(data.match(/(^\d+)/)?.[1], '500');
-        done();
-      },
-    );
+    const { res } = await httpRequest({ method: "GET", path: `/${file}` });
+    expect(res.statusCode).toBe(500);
   });
 
-  it('handles edge case where URL is undefined on the request', (done) => {
-    middleware.static()({} as any, {} as any, () => {
-      done();
+  it("handles edge case where URL is undefined on the request", async () => {
+    await new Promise<void>((resolve) => {
+      // biome-ignore lint/suspicious/noExplicitAny: type is irrelevant here
+      middleware.static()({} as any, {} as any, () => {
+        resolve();
+      });
     });
   });
 });

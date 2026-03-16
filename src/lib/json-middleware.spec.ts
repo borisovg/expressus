@@ -2,22 +2,21 @@
  * @author George Borisov <git@gir.me.uk>
  */
 
-import { deepStrictEqual, strictEqual } from 'assert';
-import { createServer } from 'http';
-import type { Server } from 'http';
-import { makeClient } from '../test-helpers/http-client';
-import { App, middleware } from '..';
-import type { JsonRequest, JsonResponse } from '..';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
+import type { JsonRequest, JsonResponse } from "..";
+import { App, middleware } from "..";
+import { makeAsyncClient } from "../test-helpers/http-client";
+import { createHttpServer, type TestServer } from "../test-helpers/http-server";
 
-describe('lib/json-middleware', () => {
+describe("lib/json-middleware", () => {
   const app = new App<JsonRequest, JsonResponse>();
-  const port = 10001;
-  const httpRequest = makeClient(port);
-  let server: Server;
+  const port = 10006;
+  const httpRequest = makeAsyncClient(port);
+  let server: TestServer;
 
-  before((done) => {
-    server = createServer(app.router);
-    server.listen(port, done);
+  beforeAll(async () => {
+    server = createHttpServer(app);
+    await server.listen(port);
   });
 
   beforeEach(() => {
@@ -26,112 +25,119 @@ describe('lib/json-middleware', () => {
     app.use(middleware.json());
   });
 
-  after((done) => server.close(done));
-
-  it('does not parse when there is no body', (done) => {
-    app.post('/test', (req, res) => {
-      res.end();
-      strictEqual(req.body, undefined);
-      done();
-    });
-
-    httpRequest({ method: 'POST', path: '/test' });
+  afterAll(async () => {
+    await server.close();
   });
 
-  it('does not parse without JSON content type', (done) => {
-    app.post('/test', (req, res) => {
-      res.end();
-      strictEqual(req.body, undefined);
-      done();
-    });
+  it("does not parse when there is no body", async () => {
+    await new Promise<void>((resolve) => {
+      app.post("/test", (req, res) => {
+        expect(req.body).toBeUndefined();
+        res.end();
+        resolve();
+      });
 
-    httpRequest({ method: 'POST', path: '/test' }, '{"foo":"foofoo"}');
+      httpRequest({ method: "POST", path: "/test" });
+    });
   });
 
-  it('creates replaces req.body with parsed JSON', (done) => {
-    app.post('/test', (req, res) => {
-      res.end();
-      deepStrictEqual(req.body, { foo: 'foofoo' });
-      done();
-    });
+  it("does not parse without JSON content type", async () => {
+    await new Promise<void>((resolve) => {
+      app.post("/test", (req, res) => {
+        expect(req.body).toBeUndefined();
+        res.end();
+        resolve();
+      });
 
-    httpRequest(
-      { method: 'POST', path: '/test', type: 'application/json' },
-      '{"foo":"foofoo"}',
-    );
+      httpRequest({ method: "POST", path: "/test" }, '{"foo":"foofoo"}');
+    });
   });
 
-  it('creates replaces req.body with parsed JSON when "content-type" includes charset', (done) => {
-    app.post('/test', (req, res) => {
-      res.end();
-      deepStrictEqual(req.body, { foo: 'foofoo' });
-      done();
-    });
-
-    httpRequest(
-      {
-        method: 'POST',
-        path: '/test',
-        type: 'application/json;charset=utf-8',
-      },
-      '{"foo":"foofoo"}',
-    );
-  });
-
-  (['get', 'post'] as const).forEach((method) => {
-    it('adds res.json() which sends JSON to client', (done) => {
-      app[method]('/test', (_req, res) => {
-        res.json({ bar: 'foobar' });
+  it("creates replaces req.body with parsed JSON", async () => {
+    await new Promise<void>((resolve) => {
+      app.post("/test", (req, res) => {
+        expect(req.body).toEqual({ foo: "foofoo" });
+        res.end();
+        resolve();
       });
 
       httpRequest(
-        {
-          method: method.toUpperCase(),
-          path: '/test',
-          type: 'application/json',
-        },
-        undefined,
-        (res, data) => {
-          const json = JSON.parse(data);
-          strictEqual(json.bar, 'foobar');
-          strictEqual(res.headers['content-type'], 'application/json');
-          done();
-        },
+        { method: "POST", path: "/test", type: "application/json" },
+        '{"foo":"foofoo"}',
       );
     });
   });
 
-  it('returns HTTP 400 status on parse error', (done) => {
-    httpRequest(
-      { method: 'POST', path: '/test', type: 'application/json' },
-      'spanner',
-      (res, data) => {
-        const json = JSON.parse(data);
-        strictEqual(json.code, 400);
-        strictEqual(res.statusCode, 400);
-        done();
-      },
-    );
+  it('creates replaces req.body with parsed JSON when "content-type" includes charset', async () => {
+    await new Promise<void>((resolve) => {
+      app.post("/test", (req, res) => {
+        expect(req.body).toEqual({ foo: "foofoo" });
+        res.end();
+        resolve();
+      });
+
+      httpRequest(
+        {
+          method: "POST",
+          path: "/test",
+          type: "application/json;charset=utf-8",
+        },
+        '{"foo":"foofoo"}',
+      );
+    });
   });
 
-  it('does not conflict with body-middleware', (done) => {
+  (["get", "post"] as const).forEach((method) => {
+    it("adds res.json() which sends JSON to client", async () => {
+      app[method]("/test", (_req, res) => {
+        res.json({ bar: "foobar" });
+      });
+
+      const { res, data } = await httpRequest({
+        method: method.toUpperCase(),
+        path: "/test",
+        type: "application/json",
+      });
+      const json = JSON.parse(data);
+      expect(json.bar).toBe("foobar");
+      expect(res.headers["content-type"]).toBe("application/json");
+    });
+  });
+
+  it("returns HTTP 400 status on parse error", async () => {
+    const { res, data } = await httpRequest(
+      {
+        method: "POST",
+        path: "/test",
+        type: "application/json",
+      },
+      "spanner",
+    );
+
+    const json = JSON.parse(data);
+    expect(json.code).toBe(400);
+    expect(res.statusCode).toBe(400);
+  });
+
+  it("does not conflict with body-middleware", async () => {
     app.remove_middleware();
     app.use(middleware.body());
     app.use(middleware.json());
 
-    app.post('/test', (req, res) => {
-      res.end();
-      deepStrictEqual(req.body, { foo: 'foofoo' });
-      done();
+    app.post("/test", (req, res) => {
+      expect(req.body).toEqual({ foo: "foofoo" });
+      res.end("ok");
     });
 
-    httpRequest(
+    const { res, data } = await httpRequest(
       {
-        method: 'POST',
-        path: '/test',
-        type: 'application/json;charset=utf-8',
+        method: "POST",
+        path: "/test",
+        type: "application/json;charset=utf-8",
       },
       '{"foo":"foofoo"}',
     );
+    expect(data).toBe("ok");
+    expect(res.statusCode).toBe(200);
   });
 });
