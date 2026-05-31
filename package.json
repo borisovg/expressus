@@ -24,20 +24,20 @@
   "dependencies": {
     "http-hash": "2.0.1",
     "mime-types": "3.0.2",
-    "tslib": "^2"
+    "tslib": "^2.8.1"
   },
   "engines": {
     "node": ">=12"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2",
-    "@types/mime-types": "^3",
-    "@types/node": "^24",
-    "@vitest/coverage-v8": "^4",
-    "memfs": "^4.56.11",
-    "tsx": "^4",
-    "typescript": "^5",
-    "vitest": "^4"
+    "@biomejs/biome": "^2.4.16",
+    "@types/mime-types": "^3.0.1",
+    "@types/node": "^25.9.1",
+    "@vitest/coverage-v8": "^4.1.7",
+    "memfs": "^4.57.3",
+    "tsx": "^4.22.3",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
