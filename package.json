@@ -24,20 +24,20 @@
   "dependencies": {
     "http-hash": "2.0.1",
     "mime-types": "3.0.2",
-    "tslib": "^2.8.1"
+    "tslib": "^2.9.1"
   },
   "engines": {
     "node": ">=12"
   },
   "devDependencies": {
-    "@biomejs/biome": "^2.5.3",
+    "@biomejs/biome": "^2.6.4",
     "@types/mime-types": "^3.0.1",
-    "@types/node": "^26.1.1",
-    "@vitest/coverage-v8": "^4.1.10",
-    "memfs": "^4.64.0",
-    "tsx": "^4.23.1",
+    "@types/node": "^26.6.6",
+    "@vitest/coverage-v8": "^4.1.12",
+    "memfs": "^4.80.0",
+    "tsx": "^4.23.15",
     "typescript": "^7.0.2",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.12"
   },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -45,5 +45,5 @@
     "singleQuote": true,
     "tabWidth": 2
   },
-  "packageManager": "pnpm@11.13.1"
+  "packageManager": "pnpm@11.28.10"
 }
